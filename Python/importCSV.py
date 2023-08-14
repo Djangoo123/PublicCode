@@ -1,8 +1,8 @@
 import psycopg2
   
-conn = psycopg2.connect(database="Test",
-                        user='postgres', password='root', 
-                        host='localhost', port='5432'
+conn = psycopg2.connect(database="",
+                        user='', password='', 
+                        host='localhost', port=''
 )
   
 conn.autocommit = True

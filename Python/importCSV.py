@@ -1,3 +1,6 @@
+#Imports data from a CSV into a postgre database. 
+#We create the table and its properties then we inject the CSV (obviously the data must correspond to the specified types)
+
 import psycopg2
   
 conn = psycopg2.connect(database="",
@@ -8,6 +11,7 @@ conn = psycopg2.connect(database="",
 conn.autocommit = True
 cursor = conn.cursor()
 
+#(i set a drop if existing just for the test, feel free to delete this line if needed)
 cleanTable = '''DROP TABLE IF EXISTS DATA;'''
 
 cursor.execute(cleanTable)
@@ -21,7 +25,7 @@ cursor.execute(createTableAndProps)
   
 addDataFromFile = '''COPY data(id,name,\
 email,salary)
-FROM 'D:/Code/CSN/test.csv'
+FROM 'YOURCSVPATH'
 WITH DELIMITER ';'
 CSV HEADER;'''
   

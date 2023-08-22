@@ -262,12 +262,14 @@ export default class OfficeMap extends Component {
     }
 
     getDeskComponentsTypes(desk) {
+        console.log(desk)
         const deskComponents = desk.equipments ? desk.equipments.map(e => e.type ? e.type.toLowerCase() : '') : []
         const definedComponents = ['chair', 'drawer', 'desk', 'keyboard', 'mouse', 'monitor', 'phone', 'cpu', 'desktop', 'laptop']
         return definedComponents.filter(component => deskComponents.includes(component))
     }
 
     getDeskComponents(desk) {
+        console.log(desk)
         const transformMap = {
             'south': '',
             'north': `rotate(-180 ${CELL_SIZE / 2 + 1} ${CELL_SIZE / 2 + 1})`,
@@ -303,6 +305,7 @@ export default class OfficeMap extends Component {
     }
 
     getDeskId(desk) {
+        console.log(desk)
         const chairDirection = desk.chairDirection
         const deskComponents = this.getDeskComponentsTypes(desk)
         return deskComponents.reduce((deskId, component) => {
@@ -351,6 +354,7 @@ export default class OfficeMap extends Component {
     }
 
     render() {
+        console.log(this.props)
         const viewBox = this.state.viewBox
         const transformMatrix = this.state.transformMatrix
         return (

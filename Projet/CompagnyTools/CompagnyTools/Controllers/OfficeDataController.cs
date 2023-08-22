@@ -1,17 +1,27 @@
 ﻿using CompagnyTools.Entities;
-using Microsoft.AspNetCore.Http;
+using CompagnyTools.Interface;
+using CompagnyTools.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CompagnyTools.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/officeData")]
     [ApiController]
     public class OfficeDataController : ControllerBase
     {
-        // GET: OfficeDataController
-        public List<User>? Index()
+        private readonly IOffice _iOffice;
+
+        public OfficeDataController(IOffice iOffice)
         {
-            return null;
+            this._iOffice = iOffice;
+
+        }
+
+        [HttpGet("getData")]
+        public DeskModel? GetData()
+        {
+            var result = _iOffice.OfficeData();
+            return result;
         }
     }
 }

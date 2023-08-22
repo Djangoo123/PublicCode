@@ -16,6 +16,10 @@ public partial class EFCoreContext : DbContext
     {
     }
 
+    public virtual DbSet<Dataoffice> Dataoffices { get; set; }
+
+    public virtual DbSet<Equipment> Equipments { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -23,6 +27,44 @@ public partial class EFCoreContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Dataoffice>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("dataoffice_pkey");
+
+            entity.ToTable("dataoffice");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("id");
+            entity.Property(e => e.Chairdirection)
+                .HasMaxLength(50)
+                .HasColumnName("chairdirection");
+            entity.Property(e => e.X).HasColumnName("x");
+            entity.Property(e => e.Y).HasColumnName("y");
+        });
+
+        modelBuilder.Entity<Equipment>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("equipments_pkey");
+
+            entity.ToTable("equipments");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("id");
+            entity.Property(e => e.DeskId).HasColumnName("desk_id");
+            entity.Property(e => e.Specification)
+                .HasMaxLength(100)
+                .HasColumnName("specification");
+            entity.Property(e => e.Type)
+                .HasMaxLength(50)
+                .HasColumnName("type");
+
+            entity.HasOne(d => d.Desk).WithMany(p => p.Equipment)
+                .HasForeignKey(d => d.DeskId)
+                .HasConstraintName("fk_dataoffice");
+        });
+
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("users_pkey");

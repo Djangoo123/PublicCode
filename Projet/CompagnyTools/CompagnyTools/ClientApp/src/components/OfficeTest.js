@@ -2,18 +2,26 @@ import React, { Component } from 'react'
 
 import OfficeMap from 'office-map'
 
-const INITIAL_STATE = { desk: undefined }
-
 export class OfficeTest extends Component {
 
     constructor(props) {
         super(props)
-        this.state = INITIAL_STATE
+        this.state = {
+            desk: undefined,
+            officeData: null,
+        };
+    }
+
+    componentDidMount() {
+        fetch('/api/OfficeData')
+            .then(response => response.json())
+            .then(data => this.setState({ officeData: data }));
+
+        console.log(this.state.officeData)
     }
 
     render() {
 
-        console.log("test")
         const data = [
             {
                 id: 1,

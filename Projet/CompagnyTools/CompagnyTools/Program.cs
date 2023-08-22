@@ -20,7 +20,7 @@ public class Program
             .AddJsonFile($"appsettings.{Environment.MachineName}.json", optional: true)
             .Build();
 
-        string dbConnectionString = "Server=192.168.97.206;Port=5432;Database=mistral;User Id=mistral;Password=wb5%r4&VzkM#k9p";
+        string dbConnectionString = "Server=localhost;Port=5432;Database=;User Id=;Password=";
 
         // Launch connection postgres 
         ServiceProvider serviceProvider = new ServiceCollection()

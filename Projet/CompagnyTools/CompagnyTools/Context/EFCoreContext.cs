@@ -16,7 +16,7 @@ public partial class EFCoreContext : DbContext
     {
     }
 
-    public virtual DbSet<Dataoffice> Dataoffices { get; set; }
+    public virtual DbSet<DataOffice> DataOffices { get; set; }
 
     public virtual DbSet<Equipment> Equipments { get; set; }
 
@@ -27,15 +27,15 @@ public partial class EFCoreContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Dataoffice>(entity =>
+        modelBuilder.Entity<DataOffice>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("dataoffice_pkey");
+            entity.HasKey(e => e.DeskId).HasName("data_office_pkey");
 
-            entity.ToTable("dataoffice");
+            entity.ToTable("data_office");
 
-            entity.Property(e => e.Id)
+            entity.Property(e => e.DeskId)
                 .ValueGeneratedNever()
-                .HasColumnName("id");
+                .HasColumnName("desk_id");
             entity.Property(e => e.Chairdirection)
                 .HasMaxLength(50)
                 .HasColumnName("chairdirection");

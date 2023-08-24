@@ -20,12 +20,8 @@ export class OfficeTest extends Component {
 
     render() {
 
-        const { equipments } = this.state;
-        const desk = this.state.desk
+        const { equipments, desk } = this.state;
 
-        // TODO : refacto here
-        let test = [];
-        test.push(equipments);
 
         //const officeData = [
         //    {
@@ -167,9 +163,9 @@ export class OfficeTest extends Component {
                         (desk && desk.id ? <h2>The desk {desk.id} was selected</h2> : '')}
                 <hr />
                 <br />
-                {test != undefined && test[0] != null ?
+                {equipments != undefined && equipments[0] != null ?
                     <OfficeMap
-                        data={test}
+                        data={equipments}
                         onSelect={desk => this.setState({ desk })}
                         onMove={desk => this.setState({ desk })}
                         editMode={true}

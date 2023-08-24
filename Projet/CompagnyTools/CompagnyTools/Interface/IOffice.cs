@@ -5,6 +5,6 @@ namespace CompagnyTools.Interface
 {
     public interface IOffice
     {
-        public DeskModel OfficeData();
+        public List<DeskModel> OfficeData();
     }
 }

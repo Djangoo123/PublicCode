@@ -13,5 +13,5 @@ public partial class Equipment
 
     public string? Specification { get; set; }
 
-    public virtual Dataoffice? Desk { get; set; }
+    public virtual DataOffice? Desk { get; set; }
 }

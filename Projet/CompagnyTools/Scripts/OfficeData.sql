@@ -1,10 +1,10 @@
 
-CREATE TABLE IF NOT EXISTS DataOffice
-(id INT NOT NULL,
+CREATE TABLE IF NOT EXISTS Data_Office
+(desk_id INT NOT NULL,
 chairDirection VARCHAR(50) NOT NULL,
 x int NOT NULL,
 y int NOT NULL,
-PRIMARY KEY(id)
+PRIMARY KEY(desk_id)
 );
 
 CREATE TABLE equipments(
@@ -15,10 +15,10 @@ CREATE TABLE equipments(
    PRIMARY KEY(id),
    CONSTRAINT fk_DataOffice
       FOREIGN KEY(desk_id) 
-	  REFERENCES DataOffice(id)
+	  REFERENCES Data_Office(desk_id)
 );
 
-INSERT INTO DataOffice (id, chairDirection, x, y)
+INSERT INTO Data_Office (desk_id, chairDirection, x, y)
 VALUES ('1', 'south', 0, 0),
  ('2', 'south', 1, 0),
  ('3', 'south', 2, 0),

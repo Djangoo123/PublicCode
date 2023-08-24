@@ -2,9 +2,6 @@
 using CompagnyTools.Entities;
 using CompagnyTools.Interface;
 using CompagnyTools.Models;
-using System;
-using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace CompagnyTools.Services
 {
@@ -20,31 +17,48 @@ namespace CompagnyTools.Services
         /// 
         /// </summary>
         /// <returns></returns>
-        public DeskModel OfficeData()
+        public List<DeskModel> OfficeData()
         {
-            DeskModel itemOffice = new();
-
-            // For a test for now
-            Dataoffice? deskOffice = _context.Dataoffices.Where(x => x.Id == 1).FirstOrDefault();
-
-            itemOffice.Id = deskOffice.Id;
-            itemOffice.X = deskOffice.X;
-            itemOffice.Y = deskOffice.Y;
-            itemOffice.Chairdirection = deskOffice.Chairdirection; ;
-            itemOffice.Equipments = new();
-
-            // TODO : refacto this, problem on link between tables
-            List<Equipment> equipment = _context.Equipments.Where(x => x.DeskId == deskOffice.Id).ToList();
-
-            foreach (var item in equipment)
+            try
             {
-                EquipmentsModel deskProps = new();
-                deskProps.type = item.Type;
-                deskProps.specification = item.Specification;
-                itemOffice.Equipments.Add(deskProps);
+                // Init
+                List<DeskModel> itemsOffice = new();
+
+                // Get our office data
+                List<DataOffice> deskOffice = _context.DataOffices.ToList();
+
+                foreach (DataOffice desk in deskOffice)
+                {
+                    DeskModel item = new();
+
+                    item.Id = desk.DeskId;
+                    item.X = desk.X;
+                    item.Y = desk.Y;
+                    item.Chairdirection = desk.Chairdirection;
+                    item.Equipments = new();
+
+                    // TODO : refacto this, problem on link between tables
+                    List<Equipment> equipment = _context.Equipments.Where(x => x.DeskId == desk.DeskId).ToList();
+
+                    foreach (var props in equipment)
+                    {
+                        EquipmentsModel deskProps = new();
+                        deskProps.type = props.Type;
+                        deskProps.specification = props.Specification;
+                        item.Equipments.Add(deskProps);
+                    }
+
+                    itemsOffice.Add(item);
+                }
+
+                return itemsOffice;
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
 
-            return itemOffice;
         } 
     }
 }

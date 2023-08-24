@@ -18,10 +18,19 @@ namespace CompagnyTools.Controllers
         }
 
         [HttpGet("getData")]
-        public DeskModel? GetData()
+        public List<DeskModel> GetData()
         {
-            var result = _iOffice.OfficeData();
-            return result;
+            try
+            {
+                var result = _iOffice.OfficeData();
+                return result;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+
         }
     }
 }

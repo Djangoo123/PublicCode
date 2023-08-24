@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace CompagnyTools.Entities;
 
-public partial class Dataoffice
+public partial class DataOffice
 {
-    public int Id { get; set; }
+    public int DeskId { get; set; }
 
     public string Chairdirection { get; set; } = null!;
 

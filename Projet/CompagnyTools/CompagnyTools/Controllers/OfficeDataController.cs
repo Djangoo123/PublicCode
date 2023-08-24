@@ -14,21 +14,43 @@ namespace CompagnyTools.Controllers
         public OfficeDataController(IOffice iOffice)
         {
             this._iOffice = iOffice;
-
         }
 
+        /// <summary>
+        /// Retrieving data from the office to create our map
+        /// </summary>
+        /// <returns>office data (desks)</returns>
         [HttpGet("getData")]
-        public List<DeskModel> GetData()
+        public ActionResult<List<DeskModel>> GetData()
         {
             try
             {
-                var result = _iOffice.OfficeData();
-                return result;
+                List<DeskModel> result = _iOffice.OfficeData();
+                return Ok(result);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                return BadRequest(ex);
+            }
 
-                throw;
+        }
+
+
+        /// <summary>
+        /// Updating our office grid data
+        /// </summary>
+        /// <param name="model">Office map data</param>
+        /// <returns>office data (desks)</returns>
+        [HttpPost("updateOfficeMap")]
+        public ActionResult<List<DeskModel>> UpdateOfficeMap([FromBody] List<DeskModel> model)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
             }
 
         }

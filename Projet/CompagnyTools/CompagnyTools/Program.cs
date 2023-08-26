@@ -1,10 +1,5 @@
 using CompagnyTools;
-using CompagnyTools.Context;
-using CompagnyTools.Interface;
-using CompagnyTools.Services;
 using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 public class Program
 {

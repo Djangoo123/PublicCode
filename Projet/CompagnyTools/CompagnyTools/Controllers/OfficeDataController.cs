@@ -46,7 +46,8 @@ namespace CompagnyTools.Controllers
         {
             try
             {
-                return Ok();
+                _iOffice.UpdateOfficeData(model);
+                return Ok(model);
             }
             catch (Exception ex)
             {

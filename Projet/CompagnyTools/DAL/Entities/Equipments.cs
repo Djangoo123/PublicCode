@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CompagnyTools.Entities;
+namespace DAL.Entities;
 
-public partial class Equipment
+public partial class Equipments
 {
     public int Id { get; set; }
 

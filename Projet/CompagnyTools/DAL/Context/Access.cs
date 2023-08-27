@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
-
-namespace CompagnyTools.Context
+namespace DAL.Context
 {
     public partial class Access : EFCoreContext
     {

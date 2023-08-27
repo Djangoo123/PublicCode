@@ -1,7 +1,8 @@
-
-using CompagnyTools.Context;
+using AutoMapper;
+using CompagnyTools.AutoMapper;
 using CompagnyTools.Interface;
 using CompagnyTools.Services;
+using DAL.Context;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,8 +29,15 @@ namespace CompagnyTools
 
             services.AddScoped<IOffice, OfficeService>();
             services.AddSession();
-
             services.AddControllersWithViews();
+
+            MapperConfiguration mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile(new Profiles());
+            });
+
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

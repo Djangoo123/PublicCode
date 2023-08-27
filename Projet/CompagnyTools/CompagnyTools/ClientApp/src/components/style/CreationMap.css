@@ -1,0 +1,10 @@
+﻿.textfieldMainDesign {
+    width: 400px;
+    margin: 10px !important;
+    position: relative !important;
+}
+
+.mainContainer {
+    font-family: sans-serif;
+    text-align: center;
+}

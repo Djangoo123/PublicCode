@@ -6,5 +6,5 @@ Set CompagnyTools as startup project
 Then type on screen:
 
 ```
-Scaffold-DbContext -v -Connection "name=ConnectionString" -Provider Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Entities -ContextDir Context -Context EFCoreContext -Schemas public -Force -Project "CompagnyTools" 
+Scaffold-DbContext -v -Connection "name=ConnectionString" -Provider Npgsql.EntityFrameworkCore.PostgreSQL -OutputDir Entities -ContextDir Context -Context EFCoreContext -Schemas public -NoPluralize -Force -Project "DAL" 
 ```

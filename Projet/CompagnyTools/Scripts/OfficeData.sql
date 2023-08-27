@@ -1,10 +1,11 @@
 
 CREATE TABLE IF NOT EXISTS Data_Office
-(desk_id INT NOT NULL,
+(id INT NOT NULL,
 chairDirection VARCHAR(50) NOT NULL,
 x int NOT NULL,
 y int NOT NULL,
-PRIMARY KEY(desk_id)
+date_creation timestamp not null default CURRENT_TIMESTAMP, 
+PRIMARY KEY(id)
 );
 
 CREATE TABLE equipments(
@@ -15,10 +16,10 @@ CREATE TABLE equipments(
    PRIMARY KEY(id),
    CONSTRAINT fk_DataOffice
       FOREIGN KEY(desk_id) 
-	  REFERENCES Data_Office(desk_id)
+	  REFERENCES Data_Office(id)
 );
 
-INSERT INTO Data_Office (desk_id, chairDirection, x, y)
+INSERT INTO Data_Office (id, chairDirection, x, y)
 VALUES ('1', 'south', 0, 0),
  ('2', 'south', 1, 0),
  ('3', 'south', 2, 0),

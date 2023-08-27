@@ -1,5 +1,4 @@
-﻿using CompagnyTools.Entities;
-using CompagnyTools.Models;
+﻿using CompagnyTools.Models;
 
 namespace CompagnyTools.Interface
 {
@@ -7,5 +6,6 @@ namespace CompagnyTools.Interface
     {
         public List<DeskModel> OfficeData();
         public List<DeskModel> UpdateOfficeData(List<DeskModel> model);
+        public List<DeskModel> CreateAMap(MapCreationModel model);
     }
 }

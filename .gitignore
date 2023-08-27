@@ -5,3 +5,7 @@
 /Projet/CompagnyTools/.vs
 /Projet/CompagnyTools/CompagnyTools/appsettings.json
 /Projet/CompagnyTools/CompagnyTools/appsettings.Development.json
+/Projet/CompagnyTools/DAL/bin/Debug/net6.0
+/Projet/CompagnyTools/DAL/obj
+/Projet/CompagnyTools/DAL/appsettings.json
+/Projet/CompagnyTools/DAL/appsettings.Development.json

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using CompagnyTools.Entities;
+using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace CompagnyTools.Context;
+namespace DAL.Context;
 
 public partial class EFCoreContext : DbContext
 {
@@ -16,11 +16,11 @@ public partial class EFCoreContext : DbContext
     {
     }
 
-    public virtual DbSet<DataOffice> DataOffices { get; set; }
+    public virtual DbSet<DataOffice> DataOffice { get; set; }
 
-    public virtual DbSet<Equipment> Equipments { get; set; }
+    public virtual DbSet<Equipments> Equipments { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
+    public virtual DbSet<Users> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql("name=ConnectionString");
@@ -29,21 +29,25 @@ public partial class EFCoreContext : DbContext
     {
         modelBuilder.Entity<DataOffice>(entity =>
         {
-            entity.HasKey(e => e.DeskId).HasName("data_office_pkey");
+            entity.HasKey(e => e.Id).HasName("data_office_pkey");
 
             entity.ToTable("data_office");
 
-            entity.Property(e => e.DeskId)
+            entity.Property(e => e.Id)
                 .ValueGeneratedNever()
-                .HasColumnName("desk_id");
+                .HasColumnName("id");
             entity.Property(e => e.Chairdirection)
                 .HasMaxLength(50)
                 .HasColumnName("chairdirection");
+            entity.Property(e => e.DateCreation)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("date_creation");
             entity.Property(e => e.X).HasColumnName("x");
             entity.Property(e => e.Y).HasColumnName("y");
         });
 
-        modelBuilder.Entity<Equipment>(entity =>
+        modelBuilder.Entity<Equipments>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("equipments_pkey");
 
@@ -60,12 +64,12 @@ public partial class EFCoreContext : DbContext
                 .HasMaxLength(50)
                 .HasColumnName("type");
 
-            entity.HasOne(d => d.Desk).WithMany(p => p.Equipment)
+            entity.HasOne(d => d.Desk).WithMany(p => p.Equipments)
                 .HasForeignKey(d => d.DeskId)
                 .HasConstraintName("fk_dataoffice");
         });
 
-        modelBuilder.Entity<User>(entity =>
+        modelBuilder.Entity<Users>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("users_pkey");
 

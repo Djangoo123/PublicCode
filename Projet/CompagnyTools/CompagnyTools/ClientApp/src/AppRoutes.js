@@ -1,5 +1,6 @@
 import { Home } from "./components/Home";
 import { OfficeMapping } from "./components/OfficeMapping";
+import { MapCreation } from "./components/MapCreation";
 
 const AppRoutes = [
   {
@@ -9,6 +10,10 @@ const AppRoutes = [
     {
         path: '/Office',
         element: <OfficeMapping />
+    },
+    {
+        path: '/Creation',
+        element: <MapCreation />
     },
 ];
 

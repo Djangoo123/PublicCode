@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CompagnyTools.Entities;
+namespace DAL.Entities;
 
 public partial class DataOffice
 {
-    public int DeskId { get; set; }
+    public int Id { get; set; }
 
     public string Chairdirection { get; set; } = null!;
 
@@ -13,5 +13,7 @@ public partial class DataOffice
 
     public int Y { get; set; }
 
-    public virtual ICollection<Equipment> Equipment { get; set; } = new List<Equipment>();
+    public DateTime DateCreation { get; set; }
+
+    public virtual ICollection<Equipments> Equipments { get; set; } = new List<Equipments>();
 }

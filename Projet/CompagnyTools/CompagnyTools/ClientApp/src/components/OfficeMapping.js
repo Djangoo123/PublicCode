@@ -19,6 +19,7 @@ export class OfficeMapping extends Component {
         this.handleDuplicate = this.handleDuplicate.bind(this);
         this.handleSeparator = this.handleSeparator.bind(this);
         this.handleDeleteItem = this.handleDeleteItem.bind(this);
+        this.handleDesignation = this.handleDesignation.bind(this);
     }
 
     componentDidMount() {
@@ -64,10 +65,15 @@ export class OfficeMapping extends Component {
             })
     }
 
+    handleDesignation(event) {
+        event.preventDefault();
+        this.setState({ spaceDesignation: event.target.value })
+    }
+
     handleSeparator(event) {
         event.preventDefault();
 
-        const { dataMap } = this.state;
+        const { dataMap, spaceDesignation } = this.state;
 
         let url = "/api/OfficeData/createSeparator";
 
@@ -78,12 +84,13 @@ export class OfficeMapping extends Component {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(event.target.value)
+                body: JSON.stringify(spaceDesignation)
             })
             .then((res) => res.json())
             .then((json) => {
                 dataMap.push(json);
                 this.setState({ dataMap: dataMap })
+                window.location.reload(false);
             })
     }
 
@@ -162,11 +169,16 @@ export class OfficeMapping extends Component {
                             <TextField
                                 className=""
                                 type="text"
-                                label="Office espace designation"
+                                label="Office designation"
                                 variant="outlined"
                                 value={spaceDesignation}
-                                onChange={this.handleSeparator}
+                                onChange={this.handleDesignation}
                             />
+                        </Grid>
+                        <Grid item xs={4}>
+                            <form onSubmit={this.handleSeparator}>
+                                <Button onChange={this.handleDeleteItem} variant="contained" type="Submit">Submit</Button>
+                            </form>
                         </Grid>
                     </Grid>
                 </div>

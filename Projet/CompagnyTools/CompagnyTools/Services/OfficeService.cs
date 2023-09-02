@@ -48,6 +48,8 @@ namespace CompagnyTools.Services
                     {
                         EquipmentsModel deskProps = new()
                         {
+                            DeskId = props.DeskId,
+                            Id = props.Id,
                             type = props.Type,
                             specification = props.Specification
                         };
@@ -98,6 +100,11 @@ namespace CompagnyTools.Services
             }
         }
 
+        /// <summary>
+        /// Create a default map with a model parameters
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
         public List<DeskModel> CreateAMap(MapCreationModel model)
         {
             try
@@ -110,6 +117,103 @@ namespace CompagnyTools.Services
                 var test = desksCreationHelper.CreateDesks(model.LineX, model.LineY, model.TypeDesk);
 
                 return null;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Service duplicating an office. We retrieve the max id, we insert the equipment and then the office.
+        /// </summary>
+        /// <param name="model">Office data</param>
+        /// <returns></returns>
+        public DataOffice DuplicateDesk(DataOffice model)
+        {
+            try
+            {
+                int id = _context.DataOffice.Max(e => e.Id);
+
+                model.Id = id + 1;
+
+                foreach (var item in model.Equipments)
+                {
+                    item.DeskId = id;
+                    item.Id = 0;
+                }
+
+                _context.Equipments.AddRange(model.Equipments);
+                _context.DataOffice.Add(model);
+                _context.SaveChanges();
+
+                return model;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Create a fake desk to designate a part of the space
+        /// </summary>
+        /// <param name="designationName"></param>
+        /// <returns></returns>
+        public DataOffice CreateDeskSeparator(string designationName)
+        {
+            try
+            {
+                DataOffice separator = new()
+                {
+                    Id = _context.DataOffice.Max(e => e.Id) + 1,
+                    X = 0,
+                    Y = 0,
+                    Chairdirection = "south",
+                };
+
+                Equipments newEquipment = new()
+                {
+                    DeskId = separator.Id,
+                    Type = "desk",
+                    Specification = designationName,
+                };
+
+                separator.Equipments.Add(newEquipment);
+
+                _context.Equipments.Add(newEquipment);
+                _context.DataOffice.Add(separator);
+                _context.SaveChanges();
+
+                return separator;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Service removing an office and all its equipment
+        /// </summary>
+        /// <param name="Id">Desk Id</param>
+        /// <returns></returns>
+        public int DeleteDesk(int Id)
+        {
+            try
+            {
+                DataOffice? itemToDelete = _context.DataOffice.FirstOrDefault(x => x.Id == Id);
+                itemToDelete.Equipments = _context.Equipments.Where(x => x.DeskId == itemToDelete.Id).ToList(); // TODO refacto this, problem link between tables
+
+                if (itemToDelete != null)
+                {
+                    _context.Equipments.RemoveRange(itemToDelete.Equipments);
+                    _context.DataOffice.Remove(itemToDelete);
+                    _context.SaveChanges();
+                }
+
+                return Id;
             }
             catch (Exception)
             {

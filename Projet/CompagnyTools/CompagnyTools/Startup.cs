@@ -31,7 +31,7 @@ namespace CompagnyTools
             services.AddSession();
             services.AddControllersWithViews();
 
-            MapperConfiguration mappingConfig = new MapperConfiguration(mc =>
+            MapperConfiguration mappingConfig = new(mc =>
             {
                 mc.AddProfile(new Profiles());
             });

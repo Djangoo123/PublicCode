@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CompagnyTools.Controllers
 {
-    [Route("api/officeData")]
+    [Route("api/[controller]")]
     [ApiController]
     public class OfficeDataController : ControllerBase
     {
@@ -30,7 +30,6 @@ namespace CompagnyTools.Controllers
             try
             {
                 List<DeskModel> result = _iOffice.OfficeData();
-                //List<DataOffice> userViewModel = _mapper.Map<List<DataOffice>>(result);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -40,9 +39,8 @@ namespace CompagnyTools.Controllers
 
         }
 
-
         /// <summary>
-        /// Updating our office grid data
+        /// Entry point for updating our office grid data
         /// </summary>
         /// <param name="model">Office map data</param>
         /// <returns>office data (desks)</returns>
@@ -61,10 +59,75 @@ namespace CompagnyTools.Controllers
 
         }
 
+        /// <summary>
+        /// Entry point for desk duplication
+        /// </summary>
+        /// <param name="model">desk data</param>
+        /// <returns></returns>
+        [HttpPost("duplicateDesk")]
+        public ActionResult<DeskModel> DuplicateDesk([FromBody] DeskModel model)
+        {
+            try
+            {
+                // Map our entry item
+                DataOffice deskToDuplicate = _mapper.Map<DataOffice>(model);
 
+                // call service to duplicate our item
+                deskToDuplicate = _iOffice.DuplicateDesk(deskToDuplicate);
+
+                // Re-map in the other way
+                model = _mapper.Map<DeskModel>(deskToDuplicate);
+
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
 
         /// <summary>
-        /// Updating our office grid data
+        /// Entry point for the creation of a desk to designate an entire space of the map
+        /// </summary>
+        /// <param name="designationName">office designation</param>
+        /// <returns></returns>
+        [HttpPost("createSeparator")]
+        public ActionResult<DeskModel> CreateDeskSeparator([FromBody] string designationName)
+        {
+            try
+            {
+                DataOffice item = _iOffice.CreateDeskSeparator(designationName);
+                DeskModel model = _mapper.Map<DeskModel>(item);
+
+                return Ok(model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        /// <summary>
+        /// Entry point to delete a specified desk
+        /// </summary>
+        /// <param name="model">Id of the deleted item</param>
+        /// <returns></returns>
+        [HttpPost("deleteDesk")]
+        public ActionResult<int> DeleteDesk([FromBody] DeskModel model)
+        {
+            try
+            {
+                int IdDeletedItem = _iOffice.DeleteDesk(model.Id);
+                return Ok(IdDeletedItem);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+        /// <summary>
+        /// Entry point for creating a default map by some parameters
         /// </summary>
         /// <param name="model">Office map data</param>
         /// <returns>office data (desks)</returns>
@@ -80,7 +143,6 @@ namespace CompagnyTools.Controllers
             {
                 return BadRequest(ex);
             }
-
         }
     }
 }

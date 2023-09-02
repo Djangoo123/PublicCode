@@ -8,3 +8,9 @@
     font-family: sans-serif;
     text-align: center;
 }
+
+.radioContainer {
+    width: 400px;
+    position: relative;
+    left: 35%;
+}

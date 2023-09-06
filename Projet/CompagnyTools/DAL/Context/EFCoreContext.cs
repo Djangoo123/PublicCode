@@ -20,6 +20,8 @@ public partial class EFCoreContext : DbContext
 
     public virtual DbSet<Equipments> Equipments { get; set; }
 
+    public virtual DbSet<Reservations> Reservations { get; set; }
+
     public virtual DbSet<Users> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -69,6 +71,32 @@ public partial class EFCoreContext : DbContext
                 .HasConstraintName("fk_dataoffice");
         });
 
+        modelBuilder.Entity<Reservations>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("reservations_pkey");
+
+            entity.ToTable("reservations");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("id");
+            entity.Property(e => e.DateCreation)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("date_creation");
+            entity.Property(e => e.DateReservation)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("date_reservation");
+            entity.Property(e => e.DeskId).HasColumnName("desk_id");
+            entity.Property(e => e.Location)
+                .HasMaxLength(50)
+                .HasColumnName("location");
+            entity.Property(e => e.Username)
+                .HasMaxLength(50)
+                .HasColumnName("username");
+        });
+
         modelBuilder.Entity<Users>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("users_pkey");
@@ -81,12 +109,12 @@ public partial class EFCoreContext : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .HasColumnName("email");
-            entity.Property(e => e.FirstName)
+            entity.Property(e => e.Password)
+                .HasColumnType("character varying")
+                .HasColumnName("password");
+            entity.Property(e => e.Username)
                 .HasMaxLength(50)
-                .HasColumnName("first_name");
-            entity.Property(e => e.LastName)
-                .HasMaxLength(50)
-                .HasColumnName("last_name");
+                .HasColumnName("username");
         });
 
         OnModelCreatingPartial(modelBuilder);

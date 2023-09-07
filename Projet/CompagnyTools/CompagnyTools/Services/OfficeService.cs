@@ -20,19 +20,19 @@ namespace CompagnyTools.Services
         /// Get all the office data
         /// </summary>
         /// <returns></returns>
-        public List<DeskModel> OfficeData()
+        public List<OfficeModel> OfficeData()
         {
             try
             {
                 // Init
-                List<DeskModel> itemsOffice = new();
+                List<OfficeModel> itemsOffice = new();
 
                 // Get our office data
                 List<DataOffice> deskOffice = _context.DataOffice.ToList();
 
                 foreach (DataOffice desk in deskOffice)
                 {
-                    DeskModel item = new()
+                    OfficeModel item = new()
                     {
                         Id = desk.Id,
                         X = desk.X,
@@ -74,7 +74,7 @@ namespace CompagnyTools.Services
         /// </summary>
         /// <param name = "model" > Desk list</param>
         /// <returns></returns>
-        public List<DeskModel> UpdateOfficeData(List<DeskModel> model)
+        public List<OfficeModel> UpdateOfficeData(List<OfficeModel> model)
         {
             try
             {
@@ -105,7 +105,7 @@ namespace CompagnyTools.Services
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public List<DeskModel> CreateAMap(MapCreationModel model)
+        public List<OfficeModel> CreateAMap(MapCreationModel model)
         {
             try
             {
@@ -220,6 +220,36 @@ namespace CompagnyTools.Services
 
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Creation of the reservation then insertion in the database (after checking certain data)
+        /// </summary>
+        /// <param name="model">Data model</param>
+        public void CreateReservation(OfficeModel model)
+        {
+            try
+            {
+                if(model.UserName != null && model.DateReservationEnd != null && model.DateReservationStart != null ) 
+                {
+                    Reservations reservations = new()
+                    {
+                        Username = model.UserName,
+                        DateReservationEnd = model.DateReservationEnd.Value,
+                        DateReservationStart = model.DateReservationStart.Value,
+                        DeskId = model.Id,
+                    };
+
+                    _context.Reservations.Add(reservations);
+                    _context.SaveChanges();
+                }
+
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
         }
     }
 }

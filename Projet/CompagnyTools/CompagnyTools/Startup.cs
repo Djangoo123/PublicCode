@@ -58,6 +58,10 @@ namespace CompagnyTools
             app.UseStaticFiles();
             app.UseSession();
 
+            // Must add this to resolve an issue when insert datetime fields
+            // See  https://stackoverflow.com/questions/69961449/net6-and-datetime-problem-cannot-write-datetime-with-kind-utc-to-postgresql-ty
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); 
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(

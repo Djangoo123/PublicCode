@@ -8,8 +8,8 @@ namespace CompagnyTools.AutoMapper
     {
         public Profiles()
         {
-            CreateMap<DataOffice, DeskModel>();
-            CreateMap<DeskModel, DataOffice>();
+            CreateMap<DataOffice, OfficeModel>();
+            CreateMap<OfficeModel, DataOffice>();
 
             CreateMap<Equipments, EquipmentsModel>();
             CreateMap<EquipmentsModel, Equipments>();

@@ -84,10 +84,14 @@ public partial class EFCoreContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("date_creation");
-            entity.Property(e => e.DateReservation)
+            entity.Property(e => e.DateReservationEnd)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
-                .HasColumnName("date_reservation");
+                .HasColumnName("date_reservation_end");
+            entity.Property(e => e.DateReservationStart)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("date_reservation_start");
             entity.Property(e => e.DeskId).HasColumnName("desk_id");
             entity.Property(e => e.Location)
                 .HasMaxLength(50)
@@ -95,6 +99,10 @@ public partial class EFCoreContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");
+
+            entity.HasOne(d => d.Desk).WithMany(p => p.Reservations)
+                .HasForeignKey(d => d.DeskId)
+                .HasConstraintName("fk_reservations");
         });
 
         modelBuilder.Entity<Users>(entity =>

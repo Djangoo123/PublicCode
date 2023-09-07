@@ -11,7 +11,11 @@ CREATE TABLE reservations(
    desk_id INT,
    userName VARCHAR(50),
     date_creation timestamp not null default CURRENT_TIMESTAMP, 
-    date_reservation timestamp not null default CURRENT_TIMESTAMP, 
+    date_reservation_start timestamp not null default CURRENT_TIMESTAMP, 
+   date_reservation_end timestamp not null default CURRENT_TIMESTAMP, 
     location VARCHAR(50),
-   PRIMARY KEY(id)
+   PRIMARY KEY(id),
+      CONSTRAINT fk_reservations
+      FOREIGN KEY(desk_id) 
+	  REFERENCES Data_Office(id)
 );

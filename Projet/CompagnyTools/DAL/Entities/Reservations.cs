@@ -13,7 +13,11 @@ public partial class Reservations
 
     public DateTime DateCreation { get; set; }
 
-    public DateTime DateReservation { get; set; }
+    public DateTime DateReservationStart { get; set; }
+
+    public DateTime DateReservationEnd { get; set; }
 
     public string? Location { get; set; }
+
+    public virtual DataOffice? Desk { get; set; }
 }

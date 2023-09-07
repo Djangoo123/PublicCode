@@ -25,11 +25,11 @@ namespace CompagnyTools.Controllers
         /// </summary>
         /// <returns>office data (desks)</returns>
         [HttpGet("getData")]
-        public ActionResult<List<DeskModel>> GetData()
+        public ActionResult<List<OfficeModel>> GetData()
         {
             try
             {
-                List<DeskModel> result = _iOffice.OfficeData();
+                List<OfficeModel> result = _iOffice.OfficeData();
                 return Ok(result);
             }
             catch (Exception ex)
@@ -45,18 +45,24 @@ namespace CompagnyTools.Controllers
         /// <param name="model">Office map data</param>
         /// <returns>office data (desks)</returns>
         [HttpPost("updateOfficeMap")]
-        public ActionResult<List<DeskModel>> UpdateOfficeMap([FromBody] List<DeskModel> model)
+        public ActionResult<List<OfficeModel>> UpdateOfficeMap([FromBody] List<OfficeModel> model)
         {
             try
             {
-                _iOffice.UpdateOfficeData(model);
-                return Ok(model);
+                if(model != null)
+                {
+                    _iOffice.UpdateOfficeData(model);
+                    return Ok(model);
+                }
+                else
+                {
+                    return BadRequest(model);    
+                }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex);
             }
-
         }
 
         /// <summary>
@@ -65,20 +71,27 @@ namespace CompagnyTools.Controllers
         /// <param name="model">desk data</param>
         /// <returns></returns>
         [HttpPost("duplicateDesk")]
-        public ActionResult<DeskModel> DuplicateDesk([FromBody] DeskModel model)
+        public ActionResult<OfficeModel> DuplicateDesk([FromBody] OfficeModel model)
         {
             try
             {
-                // Map our entry item
-                DataOffice deskToDuplicate = _mapper.Map<DataOffice>(model);
+                if(model != null)
+                {
+                    // Map our entry item
+                    DataOffice deskToDuplicate = _mapper.Map<DataOffice>(model);
 
-                // call service to duplicate our item
-                deskToDuplicate = _iOffice.DuplicateDesk(deskToDuplicate);
+                    // call service to duplicate our item
+                    deskToDuplicate = _iOffice.DuplicateDesk(deskToDuplicate);
 
-                // Re-map in the other way
-                model = _mapper.Map<DeskModel>(deskToDuplicate);
+                    // Re-map in the other way
+                    model = _mapper.Map<OfficeModel>(deskToDuplicate);
 
-                return Ok(model);
+                    return Ok(model);
+                }
+                else
+                {
+                    return BadRequest(model);
+                }
             }
             catch (Exception ex)
             {
@@ -92,14 +105,21 @@ namespace CompagnyTools.Controllers
         /// <param name="designationName">office designation</param>
         /// <returns></returns>
         [HttpPost("createSeparator")]
-        public ActionResult<DeskModel> CreateDeskSeparator([FromBody] string designationName)
+        public ActionResult<OfficeModel> CreateDeskSeparator([FromBody] string designationName)
         {
             try
             {
-                DataOffice item = _iOffice.CreateDeskSeparator(designationName);
-                DeskModel model = _mapper.Map<DeskModel>(item);
+                if(designationName != null)
+                {
+                    DataOffice item = _iOffice.CreateDeskSeparator(designationName);
+                    OfficeModel model = _mapper.Map<OfficeModel>(item);
 
-                return Ok(model);
+                    return Ok(model);
+                }
+                else
+                {
+                    return BadRequest(designationName);    
+                }
             }
             catch (Exception ex)
             {
@@ -113,12 +133,19 @@ namespace CompagnyTools.Controllers
         /// <param name="model">Id of the deleted item</param>
         /// <returns></returns>
         [HttpPost("deleteDesk")]
-        public ActionResult<int> DeleteDesk([FromBody] DeskModel model)
+        public ActionResult<int> DeleteDesk([FromBody] OfficeModel model)
         {
             try
             {
-                int IdDeletedItem = _iOffice.DeleteDesk(model.Id);
-                return Ok(IdDeletedItem);
+                if(model != null)
+                {
+                    int IdDeletedItem = _iOffice.DeleteDesk(model.Id);
+                    return Ok(IdDeletedItem);
+                }
+                else
+                {
+                    return BadRequest(model);
+                }
             }
             catch (Exception ex)
             {
@@ -132,16 +159,51 @@ namespace CompagnyTools.Controllers
         /// <param name="model">Office map data</param>
         /// <returns>office data (desks)</returns>
         [HttpPost("createAMap")]
-        public ActionResult<List<DeskModel>> CreateAMap([FromBody] MapCreationModel model)
+        public ActionResult<List<OfficeModel>> CreateAMap([FromBody] MapCreationModel model)
         {
             try
             {
-                _iOffice.CreateAMap(model);
-                return Ok();
+                if(model != null)
+                {
+                    _iOffice.CreateAMap(model);
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest(model);
+                }
             }
             catch (Exception ex)
             {
                 return BadRequest(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Entry point for creating a reservation on a desk in the office
+        /// </summary>
+        /// <param name="model">data model</param>
+        /// <returns></returns>
+        [HttpPost("reserveLocation")]
+        public ActionResult ReserveLocation([FromBody] OfficeModel model)
+        {
+            try
+            {
+                if (model != null)
+                {
+                    _iOffice.CreateReservation(model);
+                    return Ok();
+                }
+                else 
+                {
+                    return BadRequest(model);
+                }
+
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

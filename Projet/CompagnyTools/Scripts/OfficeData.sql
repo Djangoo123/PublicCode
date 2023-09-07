@@ -5,6 +5,7 @@ chairDirection VARCHAR(50) NOT NULL,
 x int NOT NULL,
 y int NOT NULL,
 date_creation timestamp not null default CURRENT_TIMESTAMP, 
+location VARCHAR(50) NOT NULL,
 PRIMARY KEY(id)
 );
 
@@ -19,19 +20,19 @@ CREATE TABLE equipments(
 	  REFERENCES Data_Office(id)
 );
 
-INSERT INTO Data_Office (id, chairDirection, x, y)
-VALUES ('1', 'south', 0, 0),
- ('2', 'south', 1, 0),
- ('3', 'south', 2, 0),
- ('4', 'south', 3, 0),
- ('5', 'south', 0, 1),
- ('6', 'south', 1, 1),
- ('7', 'south', 2, 1),
- ('8', 'south', 3, 1),
- ('9', 'south', 0, 2),
- ('10', 'south', 1, 2),
- ('11', 'south', 2, 2),
- ('12', 'south', 3, 2);
+INSERT INTO Data_Office (id, chairDirection, x, y, location)
+VALUES ('1', 'south', 0, 0, 'Diamant'),
+ ('2', 'south', 1, 0, 'Diamant'),
+ ('3', 'south', 2, 0, 'Diamant'),
+ ('4', 'south', 3, 0, 'Diamant'),
+ ('5', 'south', 0, 1, 'Diamant'),
+ ('6', 'south', 1, 1, 'Diamant'),
+ ('7', 'south', 2, 1, 'Diamant'),
+ ('8', 'south', 3, 1, 'Diamant'),
+ ('9', 'south', 0, 2, 'Diamant'),
+ ('10', 'south', 1, 2, 'Diamant'),
+ ('11', 'south', 2, 2, 'Diamant'),
+ ('12', 'south', 3, 2, 'Diamant');
 
 
  INSERT INTO equipments (desk_id, type, specification)

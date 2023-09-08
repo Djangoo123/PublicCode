@@ -11,7 +11,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { nullEmptyOrUndefined } from "../../components/Shared/Validation";
-
+import '../style/Reservation.css'
 
 export class ReservationComponent extends Component {
 
@@ -23,13 +23,6 @@ export class ReservationComponent extends Component {
         };
         this.handleReservation = this.handleReservation.bind(this);
         this.handleUserName = this.handleUserName.bind(this);
-
-    }
-    componentDidMount() {
-
-    }
-
-    componentDidUpdate() {
 
     }
 
@@ -49,7 +42,8 @@ export class ReservationComponent extends Component {
     render() {
 
         const {open, desk } = this.props;
-        console.log(this.props)
+        const { dataReservation } = this.state;
+
         return (
             <div>
                 <Modal
@@ -59,35 +53,39 @@ export class ReservationComponent extends Component {
                     aria-describedby="modal-modal-description"
                 >
                     <Box className="modalStyle">
-                        <Typography id="modal-modal-title" variant="h6" component="h2">
-                            Reserve this emplacement
-                        </Typography>
-                        <br />
-                        <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                            You will reserve the desk number {(desk && desk.x >= 0 && desk.y >= 0) ? desk.id : null}
-                        </Typography>
-                        <br />
-                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <DemoContainer components={['DateRangePicker', 'DateRangePicker']}>
-                                <DemoItem label="Uncontrolled picker" component="DateRangePicker">
-                                    <DateRangePicker
-                                        defaultValue={[dayjs(new Date()), dayjs(new Date())]}
-                                        onChange={(newValue) => this.setState({ dateValue: newValue })}
-                                    />
-                                </DemoItem>
-                            </DemoContainer>
-                        </LocalizationProvider>
-                        <br />
-                        <TextField
-                            className="username"
-                            type="text"
-                            label="Enter your user name"
-                            variant="outlined"
-                            value={!nullEmptyOrUndefined(desk) ? desk.userName : ""}
-                            onChange={this.handleUserName}
-                        />
-                        <br />
-                        <Button onClick={this.handleReservation} variant="contained" type="Submit">Reserve this location</Button>
+                        <div className="bodyPopUp">
+                            <Typography id="modal-modal-title" variant="h6" component="h2">
+                                Reserve this emplacement
+                            </Typography>
+                            <br />
+                            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                                {(!nullEmptyOrUndefined(dataReservation) ? "This desk is already reserved by " + dataReservation.userName + " for the dates " + dataReservation.dateReservationStart + " to " + dataReservation.dateReservationEnd
+                                    : "You will reserve the desk" + (desk && desk.x >= 0 && desk.y >= 0) ? desk.location + desk.id : null)}                    
+                            </Typography>
+                            <br />
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DemoContainer components={['DateRangePicker', 'DateRangePicker']}>
+                                    <DemoItem label="Uncontrolled picker" component="DateRangePicker">
+                                        <DateRangePicker
+                                            defaultValue={[dayjs(new Date()), dayjs(new Date())]}
+                                            onChange={(newValue) => this.setState({ dateValue: newValue })}
+                                        />
+                                    </DemoItem>
+                                </DemoContainer>
+                            </LocalizationProvider>
+                            <br />
+                            <TextField
+                                className="username"
+                                type="text"
+                                label="Enter your user name"
+                                variant="outlined"
+                                value={!nullEmptyOrUndefined(dataReservation) ? dataReservation.userName : ""}
+                                onChange={this.handleUserName}
+                            />
+                            <br />
+                            <br />
+                            <Button onClick={this.handleReservation} variant="contained" type="Submit">Reserve this location</Button>
+                        </div>
                     </Box>
                 </Modal>
             </div>

@@ -15,6 +15,8 @@ public partial class DataOffice
 
     public DateTime DateCreation { get; set; }
 
+    public string Location { get; set; } = null!;
+
     public virtual ICollection<Equipments> Equipments { get; set; } = new List<Equipments>();
 
     public virtual ICollection<Reservations> Reservations { get; set; } = new List<Reservations>();

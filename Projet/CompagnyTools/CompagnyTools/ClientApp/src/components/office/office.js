@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import $ from 'jquery'
 import memoize from 'memoize-one'
-import './office.css'
+import '../style/office.css'
 
 const CELL_SIZE = 260
 const CELL_QTY = 25

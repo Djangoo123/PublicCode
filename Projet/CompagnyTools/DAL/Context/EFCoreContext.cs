@@ -45,6 +45,9 @@ public partial class EFCoreContext : DbContext
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("date_creation");
+            entity.Property(e => e.Location)
+                .HasMaxLength(50)
+                .HasColumnName("location");
             entity.Property(e => e.X).HasColumnName("x");
             entity.Property(e => e.Y).HasColumnName("y");
         });

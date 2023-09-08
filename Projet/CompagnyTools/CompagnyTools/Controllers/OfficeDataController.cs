@@ -29,7 +29,8 @@ namespace CompagnyTools.Controllers
         {
             try
             {
-                List<OfficeModel> result = _iOffice.OfficeData();
+                List<DataOffice> data = _iOffice.OfficeData();
+                List<OfficeModel> result = _mapper.Map<List<OfficeModel>>(data);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -205,6 +206,28 @@ namespace CompagnyTools.Controllers
             {
                 throw;
             }
+        }
+
+        [HttpPost("getReservationData")]
+        public ActionResult<ReservationResultModel>? GetReservationData([FromBody] int deskId)
+        {
+            try
+            {
+                ReservationResultModel? data = _iOffice.GetReservationResult(deskId);
+                if(data != null)
+                {
+                    return Ok(data);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+
         }
     }
 }

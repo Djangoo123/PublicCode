@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import '../components/style/OfficeMapping.css';
 import { nullEmptyOrUndefined } from "../components/Shared/Validation";
-import { ReservationComponent } from './office/ReservationComponent'; 
+import { ReservationComponent } from './office/ReservationComponent';
 
 export class OfficeMapping extends Component {
 
@@ -20,6 +20,7 @@ export class OfficeMapping extends Component {
             open: false,
             dateValue: [],
             userName: "",
+            dataReservation: null,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -41,7 +42,6 @@ export class OfficeMapping extends Component {
 
     componentDidUpdate() {
         const { dataMap, desk } = this.state;
-
         // Update our map if user decide to move some desk
         if (!nullEmptyOrUndefined(desk) && !nullEmptyOrUndefined(dataMap)) {
             let foundIndex = dataMap.findIndex(x => x.id === desk.id);
@@ -50,19 +50,33 @@ export class OfficeMapping extends Component {
     }
 
     handleDesk(event) {
-        this.setState({ desk: event })
-        this.setState({ selectedDesk: event })
-    }
-
-    handleOpenPopUp() {
-        const { selectedDesk } = this.state;
-        if (selectedDesk != null) {
-            this.setState({ open: true });
+        this.setState({ desk: event, selectedDesk: event })
+        if (!nullEmptyOrUndefined(event)) {
+            let url = "/api/OfficeData/getReservationData";
+            console.log(event)
+            fetch(url,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(event.id)
+                })
+                .then((data) => {
+                    if (data != null) {
+                        this.setState({ dataReservation: data })
+                    }
+                })
         }
     }
 
+    handleOpenPopUp() {
+        this.setState({ open: true });
+    }
+
     handleClose = () => {
-        this.setState({ open: false, selectedDesk : null  });
+        this.setState({ open: false, selectedDesk: null });
     };
 
     handleCreateReservation = (dateValue, userName) => {
@@ -89,7 +103,7 @@ export class OfficeMapping extends Component {
 
             })
     };
-    
+
     handleDuplicate(event) {
 
         const { desk, dataMap } = this.state;
@@ -186,8 +200,8 @@ export class OfficeMapping extends Component {
 
     render() {
 
-        const { dataMap, desk, spaceDesignation, open } = this.state;
-
+        const { dataMap, desk, spaceDesignation, open, dataReservation } = this.state;
+        console.log(open)
         return (
             <div style={{ width: 1200, margin: "10px auto" }}>
                 <h1>Your office</h1>
@@ -245,7 +259,12 @@ export class OfficeMapping extends Component {
                         verticalSize={3}
                         idSelected={2} /> : null}
 
-                <ReservationComponent open={open} desk={desk} handleChange={this.handleCreateReservation} onClose={this.handleClose} />
+                <ReservationComponent
+                    open={open}
+                    dataReservation={dataReservation}
+                    desk={desk}
+                    handleChange={this.handleCreateReservation}
+                    onClose={this.handleClose} />
             </div>
         )
     }

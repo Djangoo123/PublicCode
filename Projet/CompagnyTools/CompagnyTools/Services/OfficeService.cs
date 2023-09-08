@@ -20,46 +20,32 @@ namespace CompagnyTools.Services
         /// Get all the office data
         /// </summary>
         /// <returns></returns>
-        public List<OfficeModel> OfficeData()
+        public List<DataOffice> OfficeData()
         {
             try
             {
-                // Init
-                List<OfficeModel> itemsOffice = new();
-
                 // Get our office data
                 List<DataOffice> deskOffice = _context.DataOffice.ToList();
 
                 foreach (DataOffice desk in deskOffice)
                 {
-                    OfficeModel item = new()
-                    {
-                        Id = desk.Id,
-                        X = desk.X,
-                        Y = desk.Y,
-                        Chairdirection = desk.Chairdirection,
-                        Equipments = new()
-                    };
-
                     // TODO : refacto this, problem on link between tables
                     List<Equipments> equipment = _context.Equipments.Where(x => x.DeskId == desk.Id).ToList();
 
-                    foreach (var props in equipment)
+                    foreach (var item in equipment)
                     {
-                        EquipmentsModel deskProps = new()
+                        Equipments deskProps = new()
                         {
-                            DeskId = props.DeskId,
-                            Id = props.Id,
-                            type = props.Type,
-                            specification = props.Specification
+                            DeskId = item.DeskId,
+                            Id = item.Id,
+                            Type = item.Type,
+                            Specification = item.Specification
                         };
-                        item.Equipments.Add(deskProps);
+                        desk.Equipments.Add(deskProps);
                     }
-
-                    itemsOffice.Add(item);
                 }
 
-                return itemsOffice;
+                return deskOffice;
             }
             catch (Exception)
             {
@@ -250,6 +236,38 @@ namespace CompagnyTools.Services
                 throw;
             }
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deskId"></param>
+        /// <returns></returns>
+        public ReservationResultModel? GetReservationResult(int deskId)
+        {
+            try
+            {
+                Reservations? data = _context.Reservations.FirstOrDefault(x => x.DeskId == deskId);
+
+                if(data != null) {
+
+                    ReservationResultModel result = new()
+                    {
+                        Username = data.Username,
+                        DateReservationEnd = data.DateReservationEnd,
+                        DateReservationStart = data.DateReservationStart,
+                        Location = data.Location,
+                    };
+
+                    return result;
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

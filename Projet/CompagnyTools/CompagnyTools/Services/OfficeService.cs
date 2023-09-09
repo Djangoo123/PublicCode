@@ -224,6 +224,7 @@ namespace CompagnyTools.Services
                         DateReservationEnd = model.DateReservationEnd.Value,
                         DateReservationStart = model.DateReservationStart.Value,
                         DeskId = model.Id,
+                        Location = model.Location,
                     };
 
                     _context.Reservations.Add(reservations);
@@ -254,8 +255,8 @@ namespace CompagnyTools.Services
                     ReservationResultModel result = new()
                     {
                         Username = data.Username,
-                        DateReservationEnd = data.DateReservationEnd,
-                        DateReservationStart = data.DateReservationStart,
+                        DateReservationEnd = data.DateReservationEnd.ToShortDateString(),
+                        DateReservationStart = data.DateReservationStart.ToShortDateString(),
                         Location = data.Location,
                     };
 
@@ -265,7 +266,6 @@ namespace CompagnyTools.Services
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

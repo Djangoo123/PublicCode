@@ -220,7 +220,7 @@ namespace CompagnyTools.Controllers
                 }
                 else
                 {
-                    return null;
+                    return NoContent();
                 }
             }
             catch (Exception ex)

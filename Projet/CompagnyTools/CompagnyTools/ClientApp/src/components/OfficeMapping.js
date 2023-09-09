@@ -50,10 +50,13 @@ export class OfficeMapping extends Component {
     }
 
     handleDesk(event) {
+
         this.setState({ desk: event, selectedDesk: event })
+
         if (!nullEmptyOrUndefined(event)) {
+
             let url = "/api/OfficeData/getReservationData";
-            console.log(event)
+
             fetch(url,
                 {
                     method: 'POST',
@@ -63,11 +66,20 @@ export class OfficeMapping extends Component {
                     },
                     body: JSON.stringify(event.id)
                 })
-                .then((data) => {
-                    if (data != null) {
-                        this.setState({ dataReservation: data })
+                .then(async response => {
+                    const isJson = response.headers.get('content-type')?.includes('application/json');
+                    const data = isJson && await response.json();
+
+                    if (!response.ok) {
+                        this.setState({ dataReservation: null })
                     }
+
+                    this.setState({ dataReservation: data })
                 })
+                .catch(error => {
+                    console.error('There was an error!', error);
+                });
+
         }
     }
 
@@ -81,8 +93,6 @@ export class OfficeMapping extends Component {
 
     handleCreateReservation = (dateValue, userName) => {
         const { selectedDesk } = this.state;
-        console.log(dateValue)
-        console.log(userName)
 
         selectedDesk.DateReservationStart = dateValue[0];
         selectedDesk.DateReservationEnd = dateValue[1];
@@ -99,7 +109,7 @@ export class OfficeMapping extends Component {
                 body: JSON.stringify(selectedDesk)
             })
             .then((res) => res.json())
-            .then((json) => {
+            .then((data) => {
 
             })
     };
@@ -201,7 +211,7 @@ export class OfficeMapping extends Component {
     render() {
 
         const { dataMap, desk, spaceDesignation, open, dataReservation } = this.state;
-        console.log(open)
+
         return (
             <div style={{ width: 1200, margin: "10px auto" }}>
                 <h1>Your office</h1>

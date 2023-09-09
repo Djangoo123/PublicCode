@@ -41,8 +41,8 @@ export class ReservationComponent extends Component {
 
     render() {
 
-        const {open, desk } = this.props;
-        const { dataReservation } = this.state;
+        const { open, desk, dataReservation } = this.props;
+        const { userName } = this.state;
 
         return (
             <div>
@@ -55,11 +55,11 @@ export class ReservationComponent extends Component {
                     <Box className="modalStyle">
                         <div className="bodyPopUp">
                             <Typography id="modal-modal-title" variant="h6" component="h2">
-                                Reserve this emplacement
+                                {(!nullEmptyOrUndefined(dataReservation) ? "Desk already taken" : "Reserve this emplacement")}
                             </Typography>
                             <br />
                             <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                {(!nullEmptyOrUndefined(dataReservation) ? "This desk is already reserved by " + dataReservation.userName + " for the dates " + dataReservation.dateReservationStart + " to " + dataReservation.dateReservationEnd
+                                {(!nullEmptyOrUndefined(dataReservation) ? "This desk is already reserved by " + dataReservation.username + " for the dates " + dataReservation.dateReservationStart + " to " + dataReservation.dateReservationEnd
                                     : "You will reserve the desk" + (desk && desk.x >= 0 && desk.y >= 0) ? desk.location + desk.id : null)}                    
                             </Typography>
                             <br />
@@ -67,6 +67,7 @@ export class ReservationComponent extends Component {
                                 <DemoContainer components={['DateRangePicker', 'DateRangePicker']}>
                                     <DemoItem label="Uncontrolled picker" component="DateRangePicker">
                                         <DateRangePicker
+                                            disabled={!nullEmptyOrUndefined(dataReservation) ? true : false}
                                             defaultValue={[dayjs(new Date()), dayjs(new Date())]}
                                             onChange={(newValue) => this.setState({ dateValue: newValue })}
                                         />
@@ -79,12 +80,17 @@ export class ReservationComponent extends Component {
                                 type="text"
                                 label="Enter your user name"
                                 variant="outlined"
-                                value={!nullEmptyOrUndefined(dataReservation) ? dataReservation.userName : ""}
+                                value={!nullEmptyOrUndefined(dataReservation) ? dataReservation.userName : userName}
+                                disabled={!nullEmptyOrUndefined(dataReservation) ? true : false}
                                 onChange={this.handleUserName}
                             />
                             <br />
                             <br />
-                            <Button onClick={this.handleReservation} variant="contained" type="Submit">Reserve this location</Button>
+                            <Button
+                                disabled={!nullEmptyOrUndefined(dataReservation) ? true : false}
+                                onClick={this.handleReservation} variant="contained" type="Submit">
+                                Reserve this location
+                            </Button>
                         </div>
                     </Box>
                 </Modal>

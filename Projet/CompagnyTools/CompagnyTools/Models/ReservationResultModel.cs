@@ -4,9 +4,9 @@
     {
         public string? Username { get; set; }
 
-        public DateTime DateReservationStart { get; set; }
+        public string? DateReservationStart { get; set; }
 
-        public DateTime DateReservationEnd { get; set; }
+        public string? DateReservationEnd { get; set; }
 
         public string? Location { get; set; }
     }

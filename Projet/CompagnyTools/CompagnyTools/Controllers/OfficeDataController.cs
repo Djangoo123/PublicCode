@@ -200,7 +200,6 @@ namespace CompagnyTools.Controllers
                 {
                     return BadRequest(model);
                 }
-
             }
             catch (Exception)
             {
@@ -227,7 +226,6 @@ namespace CompagnyTools.Controllers
             {
                 return BadRequest(ex);
             }
-
         }
     }
 }

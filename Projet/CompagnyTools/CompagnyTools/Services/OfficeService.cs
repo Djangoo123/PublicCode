@@ -72,6 +72,7 @@ namespace CompagnyTools.Services
                         X = item.X,
                         Y = item.Y,
                         Chairdirection = item.Chairdirection,
+                        Location = item.Location,
                     };
 
                     _context.DataOffice.Update(desk);

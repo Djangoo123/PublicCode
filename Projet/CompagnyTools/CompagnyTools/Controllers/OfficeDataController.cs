@@ -3,6 +3,7 @@ using CompagnyTools.Interface;
 using CompagnyTools.Models;
 using DAL.Entities;
 using Microsoft.AspNetCore.Mvc;
+using System;
 
 namespace CompagnyTools.Controllers
 {
@@ -101,34 +102,6 @@ namespace CompagnyTools.Controllers
         }
 
         /// <summary>
-        /// Entry point for the creation of a desk to designate an entire space of the map
-        /// </summary>
-        /// <param name="designationName">office designation</param>
-        /// <returns></returns>
-        [HttpPost("createSeparator")]
-        public ActionResult<OfficeModel> CreateDeskSeparator([FromBody] string designationName)
-        {
-            try
-            {
-                if(designationName != null)
-                {
-                    DataOffice item = _iOffice.CreateDeskSeparator(designationName);
-                    OfficeModel model = _mapper.Map<OfficeModel>(item);
-
-                    return Ok(model);
-                }
-                else
-                {
-                    return BadRequest(designationName);    
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex);
-            }
-        }
-
-        /// <summary>
         /// Entry point to delete a specified desk
         /// </summary>
         /// <param name="model">Id of the deleted item</param>
@@ -193,8 +166,15 @@ namespace CompagnyTools.Controllers
             {
                 if (model != null)
                 {
-                    _iOffice.CreateReservation(model);
-                    return Ok();
+                   bool creationProcess = _iOffice.CreateReservation(model);
+                    if (creationProcess)
+                    {
+                        return Ok();
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
                 }
                 else 
                 {
@@ -207,13 +187,20 @@ namespace CompagnyTools.Controllers
             }
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="deskId">Desk id</param>
+        /// <param name="mode">Indicate if we are in week or month mode</param>
+        /// <returns></returns>
         [HttpPost("getReservationData")]
-        public ActionResult<ReservationResultModel>? GetReservationData([FromBody] int deskId)
+        public ActionResult<List<ReservationResultModel>>? GetReservationData([FromBody] int deskId)
         {
             try
             {
-                ReservationResultModel? data = _iOffice.GetReservationResult(deskId);
-                if(data != null)
+                List<ReservationResultModel>? data = _iOffice.GetReservationResult(deskId);
+                if (data != null)
                 {
                     return Ok(data);
                 }

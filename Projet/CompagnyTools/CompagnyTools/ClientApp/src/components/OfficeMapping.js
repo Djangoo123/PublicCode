@@ -2,10 +2,14 @@ import React, { Component } from 'react'
 import OfficeMap from 'office-map'
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
 import '../components/style/OfficeMapping.css';
 import { nullEmptyOrUndefined } from "../components/Shared/Validation";
 import { ReservationComponent } from './office/ReservationComponent';
+import dayjs from 'dayjs';
+import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 export class OfficeMapping extends Component {
 
@@ -15,19 +19,16 @@ export class OfficeMapping extends Component {
             desk: [],
             dataMap: [],
             deskToDuplicate: [],
-            spaceDesignation: "",
-            selectedDesk: [],
             open: false,
             dateValue: [],
             userName: "",
             dataReservation: null,
+            showAdminElement: false,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDuplicate = this.handleDuplicate.bind(this);
-        this.handleSeparator = this.handleSeparator.bind(this);
         this.handleDeleteItem = this.handleDeleteItem.bind(this);
-        this.handleDesignation = this.handleDesignation.bind(this);
         this.handleDesk = this.handleDesk.bind(this);
         this.handleOpenPopUp = this.handleOpenPopUp.bind(this);
         this.handleClose = this.handleClose.bind(this);
@@ -37,7 +38,7 @@ export class OfficeMapping extends Component {
     componentDidMount() {
         fetch('/api/OfficeData/getData')
             .then(response => response.json())
-            .then(data => this.setState({ dataMap: data }));
+            .then(data => this.setState({ dataMap: data, desk : null }));
     }
 
     componentDidUpdate() {
@@ -51,7 +52,7 @@ export class OfficeMapping extends Component {
 
     handleDesk(event) {
 
-        this.setState({ desk: event, selectedDesk: event })
+        this.setState({ desk: event })
 
         if (!nullEmptyOrUndefined(event)) {
 
@@ -88,15 +89,15 @@ export class OfficeMapping extends Component {
     }
 
     handleClose = () => {
-        this.setState({ open: false, selectedDesk: null });
+        this.setState({ open: false, desk: null });
     };
 
     handleCreateReservation = (dateValue, userName) => {
-        const { selectedDesk } = this.state;
+        const { desk } = this.state;
 
-        selectedDesk.DateReservationStart = dateValue[0];
-        selectedDesk.DateReservationEnd = dateValue[1];
-        selectedDesk.UserName = userName;
+        desk.dateReservationStart = dateValue[0];
+        desk.dateReservationEnd = dateValue[1];
+        desk.UserName = userName;
 
         let url = "/api/OfficeData/ReserveLocation";
         fetch(url,
@@ -106,7 +107,7 @@ export class OfficeMapping extends Component {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(selectedDesk)
+                body: JSON.stringify(desk)
             })
             .then((res) => res.json())
             .then((data) => {
@@ -137,33 +138,6 @@ export class OfficeMapping extends Component {
             .then((json) => {
                 dataMap.push(json);
                 this.setState({ dataMap: dataMap })
-            })
-    }
-
-    handleDesignation(event) {
-        this.setState({ spaceDesignation: event.target.value })
-    }
-
-    handleSeparator(event) {
-
-        const { dataMap, spaceDesignation } = this.state;
-
-        let url = "/api/OfficeData/createSeparator";
-
-        fetch(url,
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(spaceDesignation)
-            })
-            .then((res) => res.json())
-            .then((json) => {
-                dataMap.push(json);
-                this.setState({ dataMap: dataMap })
-                window.location.reload(false);
             })
     }
 
@@ -210,43 +184,52 @@ export class OfficeMapping extends Component {
 
     render() {
 
-        const { dataMap, desk, spaceDesignation, open, dataReservation } = this.state;
+        const { dataMap, desk, open, dataReservation, showAdminElement } = this.state;
+
+        let now = dayjs();
+        let dateWeek = now.add('30', 'day');
 
         return (
-            <div style={{ width: 1200, margin: "10px auto" }}>
+            <div style={{ width: "auto", margin: "10px auto" }}>
                 <h1>Your office</h1>
                 <br />
-                <div>
-                    <Grid container >
-                        <Grid item xs={4}>
-                            <Button onClick={this.handleSubmit} variant="contained" type="Submit">Save my map</Button>
+                <Button variant="contained" onClick={() => { this.setState({ showAdminElement: !showAdminElement }) }}>{showAdminElement ? false : true} Admin panel</Button>
+                {showAdminElement ?
+                    <>
+                        <br />
+                        <br />
+                        <Grid container>
+                            <Grid item xs={4}>
+                                <Button onClick={this.handleSubmit} variant="contained" type="Submit">Save my map</Button>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Button onClick={this.handleDuplicate} variant="contained" type="Submit">Duplicate selected desk</Button>
+                            </Grid>
+                            <Grid item xs={4}>
+                                <Button onClick={this.handleDeleteItem} variant="contained" type="Submit">Delete selected desk</Button>
+                            </Grid>
                         </Grid>
-                        <Grid item xs={4}>
-                            <Button onClick={this.handleDuplicate} variant="contained" type="Submit">Duplicate selected desk</Button>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <Button onClick={this.handleDeleteItem} variant="contained" type="Submit">Delete selected desk</Button>
-                        </Grid>
-                    </Grid>
+                        <br /></>
+                    : null}
+
+                <div className="datepickerContainer">
+                    <p>Reservations for this month</p>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                        <DemoContainer components={['DatePicker', 'DatePicker']}>
+                            <DatePicker
+                                disabled={true}
+                                defaultValue={dayjs(new Date())}
+                            />
+                            <DatePicker
+                                disabled={true}
+                                defaultValue={dateWeek}
+                            />
+                        </DemoContainer>
+                    </LocalizationProvider>
                     <br />
                     <Grid container>
                         <Grid item xs={4}>
-                            <TextField
-                                className="designationTextfield"
-                                type="text"
-                                label="Office designation"
-                                variant="outlined"
-                                value={spaceDesignation}
-                                onChange={this.handleDesignation}
-                            />
-                            <br />
-                            <Button onClick={this.handleSeparator} variant="contained" type="Submit">Submit</Button>
-                        </Grid>
-                    </Grid>
-                    <br />
-                    <Grid container >
-                        <Grid item xs={4}>
-                            <Button onClick={this.handleOpenPopUp} variant="contained" type="Submit">Reserve this location</Button>
+                            <Button disabled={nullEmptyOrUndefined(desk) ? true : false}  onClick={this.handleOpenPopUp} variant="contained" type="Submit">Reserve this location</Button>
                         </Grid>
                     </Grid>
                 </div>
@@ -267,7 +250,8 @@ export class OfficeMapping extends Component {
                         showNavigator={true}
                         horizontalSize={5}
                         verticalSize={3}
-                        idSelected={2} /> : null}
+                        idSelected={2} />
+                    : null}
 
                 <ReservationComponent
                     open={open}

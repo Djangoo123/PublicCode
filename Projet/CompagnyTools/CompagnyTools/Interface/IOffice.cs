@@ -9,10 +9,9 @@ namespace CompagnyTools.Interface
         public List<OfficeModel> UpdateOfficeData(List<OfficeModel> model);
         public DataOffice DuplicateDesk(DataOffice model);
         public List<OfficeModel> CreateAMap(MapCreationModel model);
-        public DataOffice CreateDeskSeparator(string designationName);
         public int DeleteDesk(int Id);
 
-        public void CreateReservation(OfficeModel model);
-        public ReservationResultModel? GetReservationResult(int deskId);
+        public bool CreateReservation(OfficeModel model);
+        public List<ReservationResultModel>? GetReservationResult(int deskId);
     }
 }

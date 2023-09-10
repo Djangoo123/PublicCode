@@ -4,6 +4,7 @@ using CompagnyTools.Models;
 using DAL.Context;
 using DAL.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace CompagnyTools.Services
 {
@@ -24,6 +25,7 @@ namespace CompagnyTools.Services
         {
             try
             {
+
                 // Get our office data
                 List<DataOffice> deskOffice = _context.DataOffice.ToList();
 
@@ -144,44 +146,6 @@ namespace CompagnyTools.Services
         }
 
         /// <summary>
-        /// Create a fake desk to designate a part of the space
-        /// </summary>
-        /// <param name="designationName"></param>
-        /// <returns></returns>
-        public DataOffice CreateDeskSeparator(string designationName)
-        {
-            try
-            {
-                DataOffice separator = new()
-                {
-                    Id = _context.DataOffice.Max(e => e.Id) + 1,
-                    X = 0,
-                    Y = 0,
-                    Chairdirection = "south",
-                };
-
-                Equipments newEquipment = new()
-                {
-                    DeskId = separator.Id,
-                    Type = "desk",
-                    Specification = designationName,
-                };
-
-                separator.Equipments.Add(newEquipment);
-
-                _context.Equipments.Add(newEquipment);
-                _context.DataOffice.Add(separator);
-                _context.SaveChanges();
-
-                return separator;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        /// <summary>
         /// Service removing an office and all its equipment
         /// </summary>
         /// <param name="Id">Desk Id</param>
@@ -213,25 +177,49 @@ namespace CompagnyTools.Services
         /// Creation of the reservation then insertion in the database (after checking certain data)
         /// </summary>
         /// <param name="model">Data model</param>
-        public void CreateReservation(OfficeModel model)
+        public bool CreateReservation(OfficeModel model)
         {
             try
             {
-                if(model.UserName != null && model.DateReservationEnd != null && model.DateReservationStart != null ) 
+                if (model.UserName != null && model.DateReservationEnd != null && model.DateReservationStart != null)
                 {
+                    DateTime? date = DateTime.UtcNow;
+                    date = new DateTime(date.Value.Year, date.Value.Month, DateTime.DaysInMonth(date.Value.Year, date.Value.Month));
+
+                    // We block all creation beyond the current month
+                    if (model.DateReservationEnd.Value.AddDays(1).ToUniversalTime() > date.Value.ToUniversalTime())
+                    {
+                        return false;
+                    }
+
+                    //Must check if the dates are not already taken
+                    Reservations? checkReservation = _context.Reservations.FirstOrDefault(x => x.DeskId == model.Id);
+
+                    if (checkReservation != null && 
+                        (checkReservation.DateReservationEnd.ToShortDateString() == model.DateReservationEnd.Value.AddDays(1).ToShortDateString()
+                        || 
+                        checkReservation.DateReservationStart.ToShortDateString() == model.DateReservationStart.Value.AddDays(1).ToShortDateString()))
+                    {
+                        return false;
+                    }
+
                     Reservations reservations = new()
                     {
                         Username = model.UserName,
-                        DateReservationEnd = model.DateReservationEnd.Value,
-                        DateReservationStart = model.DateReservationStart.Value,
+                        DateReservationEnd = model.DateReservationEnd.Value.AddDays(1),
+                        DateReservationStart = model.DateReservationStart.Value.AddDays(1),
                         DeskId = model.Id,
                         Location = model.Location,
                     };
 
                     _context.Reservations.Add(reservations);
                     _context.SaveChanges();
+                    return true;
                 }
-
+                else
+                {
+                    return false;
+                }
             }
             catch (Exception)
             {
@@ -245,22 +233,32 @@ namespace CompagnyTools.Services
         /// </summary>
         /// <param name="deskId"></param>
         /// <returns></returns>
-        public ReservationResultModel? GetReservationResult(int deskId)
+        public List<ReservationResultModel>? GetReservationResult(int deskId)
         {
             try
             {
-                Reservations? data = _context.Reservations.FirstOrDefault(x => x.DeskId == deskId);
+                // Init
+                List<ReservationResultModel> result = new();
 
-                if(data != null) {
+                DateTime? date = DateTime.UtcNow;
+                date = new DateTime(date.Value.Year, date.Value.Month, DateTime.DaysInMonth(date.Value.Year, date.Value.Month));
 
-                    ReservationResultModel result = new()
+                List<Reservations>? data = _context.Reservations.Where(x => x.DeskId == deskId && (x.DateReservationStart.ToUniversalTime() >= DateTime.UtcNow && x.DateReservationEnd.ToUniversalTime() <= date.Value.ToUniversalTime())).ToList();
+
+                if (data != null)
+                {
+                    foreach (var item in data)
                     {
-                        Username = data.Username,
-                        DateReservationEnd = data.DateReservationEnd.ToShortDateString(),
-                        DateReservationStart = data.DateReservationStart.ToShortDateString(),
-                        Location = data.Location,
-                    };
+                        ReservationResultModel model = new()
+                        {
+                            Username = item.Username,
+                            DateReservationEnd = item.DateReservationEnd.AddDays(1).ToShortDateString(),
+                            DateReservationStart = item.DateReservationStart.AddDays(1).ToShortDateString(),
+                            Location = item.Location,
+                        };
 
+                        result.Add(model);
+                    }
                     return result;
                 }
                 return null;

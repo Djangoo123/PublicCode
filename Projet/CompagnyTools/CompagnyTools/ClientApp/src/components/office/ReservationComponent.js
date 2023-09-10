@@ -41,8 +41,16 @@ export class ReservationComponent extends Component {
 
     render() {
 
-        const { open, desk, dataReservation } = this.props;
+        const { open, dataReservation } = this.props;
         const { userName } = this.state;
+
+        let typo;
+        if ((!nullEmptyOrUndefined(dataReservation))){
+             typo = dataReservation.map((item, i) =>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                    {"This desk is already reserved by " + item.username + " for the dates " + item.dateReservationStart + " to " + item.dateReservationEnd}
+                </Typography>)
+        }
 
         return (
             <div>
@@ -55,19 +63,25 @@ export class ReservationComponent extends Component {
                     <Box className="modalStyle">
                         <div className="bodyPopUp">
                             <Typography id="modal-modal-title" variant="h6" component="h2">
-                                {(!nullEmptyOrUndefined(dataReservation) ? "Desk already taken" : "Reserve this emplacement")}
+                                Reserve this emplacement
                             </Typography>
                             <br />
-                            <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                {(!nullEmptyOrUndefined(dataReservation) ? "This desk is already reserved by " + dataReservation.username + " for the dates " + dataReservation.dateReservationStart + " to " + dataReservation.dateReservationEnd
-                                    : "You will reserve the desk" + (desk && desk.x >= 0 && desk.y >= 0) ? desk.location + desk.id : null)}                    
+                            <Typography sx={{ mt: 2 }}>
+                                Warning : Only dates of the current month are accepted
                             </Typography>
+                            <br />
+                            {typo}
+                            {(!nullEmptyOrUndefined(dataReservation) ? dataReservation.map((item) => {
+                                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                                    {/*    {"This desk is already reserved by " + item.username + " for the dates " + item.dateReservationStart + " to " + item.dateReservationEnd}*/}
+                                    test
+                                </Typography>
+                            }) : null)}
                             <br />
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DemoContainer components={['DateRangePicker', 'DateRangePicker']}>
-                                    <DemoItem label="Uncontrolled picker" component="DateRangePicker">
+                                    <DemoItem component="DateRangePicker">
                                         <DateRangePicker
-                                            disabled={!nullEmptyOrUndefined(dataReservation) ? true : false}
                                             defaultValue={[dayjs(new Date()), dayjs(new Date())]}
                                             onChange={(newValue) => this.setState({ dateValue: newValue })}
                                         />
@@ -81,13 +95,11 @@ export class ReservationComponent extends Component {
                                 label="Enter your user name"
                                 variant="outlined"
                                 value={!nullEmptyOrUndefined(dataReservation) ? dataReservation.userName : userName}
-                                disabled={!nullEmptyOrUndefined(dataReservation) ? true : false}
                                 onChange={this.handleUserName}
                             />
                             <br />
                             <br />
                             <Button
-                                disabled={!nullEmptyOrUndefined(dataReservation) ? true : false}
                                 onClick={this.handleReservation} variant="contained" type="Submit">
                                 Reserve this location
                             </Button>

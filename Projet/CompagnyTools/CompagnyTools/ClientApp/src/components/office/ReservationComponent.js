@@ -20,6 +20,7 @@ export class ReservationComponent extends Component {
         this.state = {
             dateValue: [],
             userName: "",
+            showErrorMessage: false,
         };
         this.handleReservation = this.handleReservation.bind(this);
         this.handleUserName = this.handleUserName.bind(this);
@@ -32,7 +33,13 @@ export class ReservationComponent extends Component {
 
     handleReservation() {
         const { userName, dateValue } = this.state;
-        this.props.handleChange(dateValue, userName);
+        if (nullEmptyOrUndefined(userName) || nullEmptyOrUndefined(dateValue)) {
+            this.setState({ showErrorMessage : true })
+        }
+        else {
+            this.setState({ showErrorMessage: false })
+            this.props.handleChange(dateValue, userName);
+        }
     }
 
     handleClosePopUp = () => {
@@ -42,11 +49,11 @@ export class ReservationComponent extends Component {
     render() {
 
         const { open, dataReservation } = this.props;
-        const { userName } = this.state;
+        const { userName, showErrorMessage } = this.state;
 
-        let typo;
+        let listReservations;
         if ((!nullEmptyOrUndefined(dataReservation))){
-             typo = dataReservation.map((item, i) =>
+            listReservations = dataReservation.map((item, i) =>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
                     {"This desk is already reserved by " + item.username + " for the dates " + item.dateReservationStart + " to " + item.dateReservationEnd}
                 </Typography>)
@@ -70,13 +77,7 @@ export class ReservationComponent extends Component {
                                 Warning : Only dates of the current month are accepted
                             </Typography>
                             <br />
-                            {typo}
-                            {(!nullEmptyOrUndefined(dataReservation) ? dataReservation.map((item) => {
-                                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                                    {/*    {"This desk is already reserved by " + item.username + " for the dates " + item.dateReservationStart + " to " + item.dateReservationEnd}*/}
-                                    test
-                                </Typography>
-                            }) : null)}
+                            {listReservations}
                             <br />
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DemoContainer components={['DateRangePicker', 'DateRangePicker']}>
@@ -84,6 +85,7 @@ export class ReservationComponent extends Component {
                                         <DateRangePicker
                                             defaultValue={[dayjs(new Date()), dayjs(new Date())]}
                                             onChange={(newValue) => this.setState({ dateValue: newValue })}
+                                            required
                                         />
                                     </DemoItem>
                                 </DemoContainer>
@@ -91,6 +93,7 @@ export class ReservationComponent extends Component {
                             <br />
                             <TextField
                                 className="username"
+                                required
                                 type="text"
                                 label="Enter your user name"
                                 variant="outlined"
@@ -103,6 +106,10 @@ export class ReservationComponent extends Component {
                                 onClick={this.handleReservation} variant="contained" type="Submit">
                                 Reserve this location
                             </Button>
+                            <br />
+                            {showErrorMessage ? <Typography sx={{ mt: 2 }}>
+                                Warning : One of the required field is not completed.
+                            </Typography> : null}
                         </div>
                     </Box>
                 </Modal>

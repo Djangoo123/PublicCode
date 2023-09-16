@@ -1,5 +1,5 @@
 ﻿import React, { Component } from 'react';
-import "../components/style/CreationMap.css";
+import "../style/CreationMap.css";
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import TextField from '@mui/material/TextField';

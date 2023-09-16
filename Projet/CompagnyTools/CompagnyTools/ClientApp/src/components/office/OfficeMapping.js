@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import OfficeMap from 'office-map'
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
-import '../components/style/OfficeMapping.css';
-import { nullEmptyOrUndefined } from "../components/Shared/Validation";
-import { ReservationComponent } from './office/ReservationComponent';
+import '../style/OfficeMapping.css';
+import { nullEmptyOrUndefined } from "../Shared/Validation";
+import { ReservationComponent } from './ReservationComponent';
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -115,7 +115,7 @@ export class OfficeMapping extends Component {
             })
     };
 
-    handleDuplicate(event) {
+    handleDuplicate() {
 
         const { desk, dataMap } = this.state;
 
@@ -141,7 +141,7 @@ export class OfficeMapping extends Component {
             })
     }
 
-    handleDeleteItem(event) {
+    handleDeleteItem() {
 
         const { desk, dataMap } = this.state;
         let foundItem = dataMap.find(x => x.id === desk.id);
@@ -162,7 +162,7 @@ export class OfficeMapping extends Component {
             })
     }
 
-    handleSubmit(event) {
+    handleSubmit() {
         const { dataMap } = this.state;
 
         let url = "/api/OfficeData/updateOfficeMap";

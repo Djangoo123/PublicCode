@@ -24,6 +24,8 @@ public partial class EFCoreContext : DbContext
 
     public virtual DbSet<Users> Users { get; set; }
 
+    public virtual DbSet<UsersRoles> UsersRoles { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseNpgsql("name=ConnectionString");
 
@@ -88,12 +90,10 @@ public partial class EFCoreContext : DbContext
                 .HasColumnType("timestamp without time zone")
                 .HasColumnName("date_creation");
             entity.Property(e => e.DateReservationEnd)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text)")
                 .HasColumnName("date_reservation_end");
             entity.Property(e => e.DateReservationStart)
-                .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                .HasColumnType("timestamp without time zone")
+                .HasDefaultValueSql("(CURRENT_TIMESTAMP AT TIME ZONE 'UTC'::text)")
                 .HasColumnName("date_reservation_start");
             entity.Property(e => e.DeskId).HasColumnName("desk_id");
             entity.Property(e => e.Location)
@@ -115,7 +115,7 @@ public partial class EFCoreContext : DbContext
             entity.ToTable("users");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+                .UseIdentityAlwaysColumn()
                 .HasColumnName("id");
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
@@ -123,9 +123,30 @@ public partial class EFCoreContext : DbContext
             entity.Property(e => e.Password)
                 .HasColumnType("character varying")
                 .HasColumnName("password");
+            entity.Property(e => e.Salt).HasColumnName("salt");
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .HasColumnName("username");
+        });
+
+        modelBuilder.Entity<UsersRoles>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("users_roles_pkey");
+
+            entity.ToTable("users_roles");
+
+            entity.Property(e => e.Id)
+                .UseIdentityAlwaysColumn()
+                .HasColumnName("id");
+            entity.Property(e => e.UserId).HasColumnName("user_id");
+            entity.Property(e => e.UserRight)
+                .HasMaxLength(100)
+                .HasColumnName("user_right");
+
+            entity.HasOne(d => d.User).WithMany(p => p.UsersRoles)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_userroles");
         });
 
         OnModelCreatingPartial(modelBuilder);

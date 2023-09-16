@@ -3,8 +3,11 @@ using CompagnyTools.AutoMapper;
 using CompagnyTools.Interface;
 using CompagnyTools.Services;
 using DAL.Context;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using AuthSamples.ClaimsTransformer;
 
 namespace CompagnyTools
 {
@@ -28,6 +31,8 @@ namespace CompagnyTools
             );
 
             services.AddScoped<IOffice, OfficeService>();
+            services.AddScoped<IAccount, AccountService>();
+            services.AddScoped<ILogin, LoginService>();
             services.AddSession();
             services.AddControllersWithViews();
 
@@ -38,6 +43,12 @@ namespace CompagnyTools
 
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) // Sets the default scheme to cookies
+            .AddCookie(options => options.LoginPath = "/Login");
+
+            // claims transformation is run after every Authenticate call
+            services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -52,15 +63,16 @@ namespace CompagnyTools
                 app.UseHsts();
             }
 
+            app.UseStaticFiles();
             app.UseRouting();
             app.UseAuthentication();
+            app.UseAuthorization();
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
             app.UseSession();
 
             // Must add this to resolve an issue when insert datetime fields
             // See  https://stackoverflow.com/questions/69961449/net6-and-datetime-problem-cannot-write-datetime-with-kind-utc-to-postgresql-ty
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true); 
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             app.UseEndpoints(endpoints =>
             {

@@ -1,9 +1,22 @@
-
 CREATE TABLE IF NOT EXISTS Users
-(id INT PRIMARY KEY,
-Username VARCHAR(50),
-password varchar,
-email VARCHAR (100)
+(   
+id INT GENERATED ALWAYS AS IDENTITY,
+Username VARCHAR(50) NOT NULL,
+password varchar NOT NULL,
+email VARCHAR (100),
+salt bytea NOT NULL,
+PRIMARY KEY(id)
+);
+
+CREATE TABLE IF NOT EXISTS Users_Roles
+(   
+id INT GENERATED ALWAYS AS IDENTITY,
+user_Id INT NOT NULL,
+user_right VARCHAR (100) NOT NULL,
+PRIMARY KEY(id),
+      CONSTRAINT fk_userRoles
+      FOREIGN KEY(user_Id) 
+	  REFERENCES Users(id)
 );
 
 CREATE TABLE reservations(

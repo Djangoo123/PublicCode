@@ -45,7 +45,20 @@ namespace CompagnyTools
             services.AddSingleton(mapper);
 
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme) // Sets the default scheme to cookies
-            .AddCookie(options => options.LoginPath = "/Login");
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+               {
+                   options.Cookie.Name = "CompagnyTools";
+                   options.LoginPath = "/Login";
+                   options.SlidingExpiration = true;
+                   options.ExpireTimeSpan = TimeSpan.FromMinutes(120);
+                   options.Events.OnRedirectToLogin = (context) =>
+                   {
+                       context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                       return Task.CompletedTask;
+                   };
+                   options.Cookie.HttpOnly = true;
+               });
+
 
             // claims transformation is run after every Authenticate call
             services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
@@ -65,6 +78,13 @@ namespace CompagnyTools
 
             app.UseStaticFiles();
             app.UseRouting();
+
+            app.UseCookiePolicy(
+            new CookiePolicyOptions
+            {
+                Secure = CookieSecurePolicy.Always
+            });
+
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseHttpsRedirection();

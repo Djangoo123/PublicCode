@@ -2,8 +2,6 @@
 using CompagnyTools.Models;
 using DAL.Context;
 using DAL.Entities;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System;
 using System.Security.Cryptography;
 using System.Text;
 

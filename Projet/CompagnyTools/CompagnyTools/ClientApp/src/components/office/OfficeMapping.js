@@ -4,12 +4,14 @@ import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import '../style/OfficeMapping.css';
 import { nullEmptyOrUndefined } from "../Shared/Validation";
+import { nullOrUndefined } from "../Shared/Validation";
 import { ReservationComponent } from './ReservationComponent';
 import dayjs from 'dayjs';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+
 
 export class OfficeMapping extends Component {
 
@@ -24,6 +26,7 @@ export class OfficeMapping extends Component {
             userName: "",
             dataReservation: null,
             showAdminElement: false,
+            isAdmin : false,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -38,7 +41,17 @@ export class OfficeMapping extends Component {
     componentDidMount() {
         fetch('/api/OfficeData/getData')
             .then(response => response.json())
-            .then(data => this.setState({ dataMap: data, desk : null }));
+            .then(data => this.setState({ dataMap: data, desk: null }));
+
+        let login = JSON.parse(window.localStorage.getItem('login'));
+
+        if (!nullOrUndefined(login)) {
+
+            const checkIfAdmin = login.usersRoles.find(x => x.userRight.toLowerCase() === "admin".toLowerCase());
+            if (!nullOrUndefined(checkIfAdmin)) {
+                this.setState({ isAdmin: true })
+            }
+        }
     }
 
     componentDidUpdate() {
@@ -184,7 +197,7 @@ export class OfficeMapping extends Component {
 
     render() {
 
-        const { dataMap, desk, open, dataReservation, showAdminElement } = this.state;
+        const { dataMap, desk, open, dataReservation, showAdminElement, isAdmin } = this.state;
 
         let now = dayjs();
         let dateWeek = now.add('30', 'day');
@@ -193,25 +206,21 @@ export class OfficeMapping extends Component {
             <div style={{ width: "auto", margin: "10px auto" }}>
                 <h1>Your office</h1>
                 <br />
-                <Button variant="contained" onClick={() => { this.setState({ showAdminElement: !showAdminElement }) }}>{showAdminElement ? false : true} Admin panel</Button>
-                {showAdminElement ?
-                    <>
-                        <br />
-                        <br />
-                        <Grid container>
-                            <Grid item xs={4}>
-                                <Button onClick={this.handleSubmit} variant="contained" type="Submit">Save my map</Button>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <Button onClick={this.handleDuplicate} variant="contained" type="Submit">Duplicate selected desk</Button>
-                            </Grid>
-                            <Grid item xs={4}>
-                                <Button onClick={this.handleDeleteItem} variant="contained" type="Submit">Delete selected desk</Button>
-                            </Grid>
+                {isAdmin ?
+                    <Button variant="contained" onClick={() => { this.setState({ showAdminElement: !showAdminElement }) }}>{showAdminElement ? false : true} Admin panel</Button> : null}
+                {showAdminElement && isAdmin ?   
+                        <><br /><br /><Grid container>
+                        <Grid item xs={4}>
+                            <Button onClick={this.handleSubmit} variant="contained" type="Submit">Save my map</Button>
                         </Grid>
-                        <br /></>
+                        <Grid item xs={4}>
+                            <Button onClick={this.handleDuplicate} variant="contained" type="Submit">Duplicate selected desk</Button>
+                        </Grid>
+                        <Grid item xs={4}>
+                            <Button onClick={this.handleDeleteItem} variant="contained" type="Submit">Delete selected desk</Button>
+                        </Grid>
+                    </Grid><br /></>
                     : null}
-
                 <div className="datepickerContainer">
                     <p>Reservations for this month</p>
                     <LocalizationProvider dateAdapter={AdapterDayjs}>

@@ -21,7 +21,7 @@ import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
-
+import { nullOrUndefined } from "../Shared/Validation";
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -210,6 +210,15 @@ export default function UserAdministration() {
         fetch('/api/Account/getAllUsers')
             .then(response => response.json())
             .then(data => setUsers(data));
+
+        let login = JSON.parse(window.localStorage.getItem('login'));
+
+        if (!nullOrUndefined(login)) {
+            const checkIfAdmin = login.usersRoles.find(x => x.userRight.toLowerCase() === "admin".toLowerCase());
+            if (nullOrUndefined(checkIfAdmin)) {
+                window.location.href = "/Home";
+            }
+        }
     }, []);
 
     const handleClick = (event, username) => {

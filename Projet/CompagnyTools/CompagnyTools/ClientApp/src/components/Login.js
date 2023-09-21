@@ -10,8 +10,19 @@ export class Login extends Component {
         this.state = {
             userName: "",
             password: "",
-            userName2: "",
+            hideItemIfLog: false,
         };
+    }
+
+    componentDidMount() {
+
+        let login = JSON.parse(window.localStorage.getItem('login'));
+
+        if (!nullOrUndefined(login)) {
+            this.setState({
+                hideItemIfLog: true
+            });
+        }
     }
 
     handleChangeUser = name => event => {
@@ -34,7 +45,6 @@ export class Login extends Component {
         data.Username = userName;
         data.Password = password;
 
-        console.log(data)
         let url = "/api/Login/userLogin";
         fetch(url,
             {
@@ -47,47 +57,73 @@ export class Login extends Component {
             })
             .then((res) => res.json())
             .then((data) => {
-                console.log(data)
                 let login = JSON.parse(window.localStorage.getItem('login'));
-                console.log(login)
                 if (nullOrUndefined(login)) {
-                    console.log("test")
                     window.localStorage.setItem('login', JSON.stringify(data));
                 }
                 window.location.href = "/Office";
             })
     };
 
+    handleLogOut = event => {
+        event.preventDefault();
+
+        let url = "/api/Login/logout";
+        fetch(url,
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((data) => {
+                console.log(data)
+                localStorage.clear();
+                window.location.href = "/Home";
+            })
+    };
+
     render() {
-        const { userName, password } = this.state;
+        const { userName, password, hideItemIfLog } = this.state;
 
         return (
             <div style={{ width: "auto" }}>
-                <form
-                    onSubmit={this.handleSubmit.bind(this)}
-                    autoComplete="off"
-                >
-                    <TextField
-                        label="Name"
-                        required
-                        value={userName}
-                        onChange={this.handleChangeUser("userName")}
-                        margin="normal"
-                    />
-                    <br/>
-                    <TextField
-                        label="password"
-                        type={"password"}
-                        required
-                        value={password}
-                        onChange={this.handleChangePassword("password")}
-                        margin="normal"
-                    />
-                    <br/>
-                    <Button type="submit" variant="outlined">
-                        Validate
-                    </Button>
-                </form>
+                {!hideItemIfLog ?
+                    <form
+                        onSubmit={this.handleSubmit.bind(this)}
+                        autoComplete="off"
+                    >
+                        <TextField
+                            label="Name"
+                            required
+                            value={userName}
+                            onChange={this.handleChangeUser("userName")}
+                            margin="normal"
+                        />
+                        <br />
+                        <TextField
+                            label="password"
+                            type={"password"}
+                            required
+                            value={password}
+                            onChange={this.handleChangePassword("password")}
+                            margin="normal"
+                        />
+                        <br />
+                        <Button type="submit" variant="outlined">
+                            Validate
+                        </Button>
+                    </form>
+                    :
+                    <form
+                        onSubmit={this.handleLogOut.bind(this)}
+                        autoComplete="off"
+                    >
+                        <Button type="submit" variant="outlined">
+                            Log out
+                        </Button>
+                    </form>}
             </div>
         )
     }

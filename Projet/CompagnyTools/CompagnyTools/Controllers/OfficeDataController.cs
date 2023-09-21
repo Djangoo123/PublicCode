@@ -153,7 +153,6 @@ namespace CompagnyTools.Controllers
             }
         }
 
-
         /// <summary>
         /// Entry point for creating a reservation on a desk in the office
         /// </summary>
@@ -186,7 +185,6 @@ namespace CompagnyTools.Controllers
                 throw;
             }
         }
-
 
         /// <summary>
         /// 

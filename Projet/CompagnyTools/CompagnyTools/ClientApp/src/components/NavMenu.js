@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import './style/NavMenu.css';
+import { nullOrUndefined } from "../components/Shared/Validation";
+
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -11,7 +13,9 @@ export class NavMenu extends Component {
 
         this.toggleNavbar = this.toggleNavbar.bind(this);
         this.state = {
-            collapsed: true
+            collapsed: true,
+            hideItemIfLog: false,
+            hideItemAdmin: false,
         };
     }
 
@@ -21,7 +25,29 @@ export class NavMenu extends Component {
         });
     }
 
+
+
+    componentDidMount() {
+
+        let login = JSON.parse(window.localStorage.getItem('login'));
+
+        if (!nullOrUndefined(login)) {
+            this.setState({
+                hideItemIfLog: true
+            });
+
+            const checkIfAdmin = login.usersRoles.find(x => x.userRight.toLowerCase() === "admin".toLowerCase());
+            if (!nullOrUndefined(checkIfAdmin)) {
+                this.setState({
+                    hideItemAdmin: true
+                });
+            }
+        }
+    }
+
     render() {
+        const { hideItemIfLog, hideItemAdmin } = this.state;
+
         return (
             <header>
                 <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
@@ -39,11 +65,12 @@ export class NavMenu extends Component {
                                 <NavLink tag={Link} className="text-dark" to="/Creation">Create default map</NavLink>
                             </NavItem>
                             <NavItem>
-                                <NavLink tag={Link} className="text-dark" to="/Login">Login</NavLink>
-                            </NavItem>
-                            <NavItem>
-                                <NavLink tag={Link} className="text-dark" to="/UserAdministration">Manage Users</NavLink>
-                            </NavItem>
+                                <NavLink tag={Link} className="text-dark" to="/Login">{!hideItemIfLog ? "Login" : "Logout"}</NavLink>
+                                </NavItem>
+                            {!hideItemAdmin ?
+                                <NavItem>
+                                    <NavLink tag={Link} className="text-dark" to="/UserAdministration">Manage Users</NavLink>
+                                </NavItem> : null}
                         </ul>
                     </Collapse>
                 </Navbar>

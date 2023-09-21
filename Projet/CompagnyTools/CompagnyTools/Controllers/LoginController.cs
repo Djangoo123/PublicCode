@@ -34,7 +34,6 @@ namespace CompagnyTools.Controllers
 
                 if (userChecked != null)
                 {
-                    // TODO : remove this
                     UsersRoles? role = userChecked.UsersRoles.First();
 
                     List<Claim> claims = new()
@@ -66,10 +65,18 @@ namespace CompagnyTools.Controllers
             }
         }
 
+        [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
-            return Redirect("/");
+            try
+            {
+                await HttpContext.SignOutAsync();
+                return Ok();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         private Users? ValidateLogin(LoginModel model)

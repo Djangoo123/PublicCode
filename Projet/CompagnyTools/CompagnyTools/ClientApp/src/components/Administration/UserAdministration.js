@@ -207,10 +207,6 @@ export default function UserAdministration() {
     };
 
     useEffect(() => {
-        fetch('/api/Account/getAllUsers')
-            .then(response => response.json())
-            .then(data => setUsers(data));
-
         let login = JSON.parse(window.localStorage.getItem('login'));
 
         if (!nullOrUndefined(login)) {
@@ -218,7 +214,12 @@ export default function UserAdministration() {
             if (nullOrUndefined(checkIfAdmin)) {
                 window.location.href = "/Home";
             }
+
+            fetch('/api/Account/getAllUsers')
+                .then(response => response.json())
+                .then(data => setUsers(data));
         }
+
     }, []);
 
     const handleClick = (event, username) => {

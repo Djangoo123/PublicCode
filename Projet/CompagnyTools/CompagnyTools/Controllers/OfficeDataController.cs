@@ -31,14 +31,13 @@ namespace CompagnyTools.Controllers
             try
             {
                 List<DataOffice> data = _iOffice.OfficeData();
-                List<OfficeModel> result = _mapper.Map<List<OfficeModel>>(data);
-                return Ok(result);
+                List<OfficeModel> result = _mapper.Map<List<OfficeModel>>(data);                
+                return Ok(result.GroupBy(x => x.Location).ToList());
             }
             catch (Exception ex)
             {
                 return BadRequest(ex);
             }
-
         }
 
         /// <summary>

@@ -202,6 +202,21 @@ export class OfficeMapping extends Component {
         let now = dayjs();
         let dateWeek = now.add('30', 'day');
 
+        let officeData;
+
+        if ((!nullEmptyOrUndefined(dataMap))) {
+            officeData = dataMap.map((item, i) =>
+                <><OfficeMap
+                    data={item}
+                    onSelect={desk => this.handleDesk(desk)}
+                    onMove={desk => this.setState({ desk })}
+                    editMode={true}
+                    showNavigator={true}
+                    horizontalSize={5}
+                    verticalSize={3}
+                    idSelected={2} /><br /><br /><br /></>
+            )}
+
         return (
             <div style={{ width: "auto", margin: "10px auto" }}>
                 <h1>Your office</h1>
@@ -250,17 +265,8 @@ export class OfficeMapping extends Component {
                     null}
                 <hr />
                 <br />
-                {!nullEmptyOrUndefined(dataMap) ?
-                    <OfficeMap
-                        data={dataMap}
-                        onSelect={desk => this.handleDesk(desk)}
-                        onMove={desk => this.setState({ desk })}
-                        editMode={true}
-                        showNavigator={true}
-                        horizontalSize={5}
-                        verticalSize={3}
-                        idSelected={2} />
-                    : null}
+                {officeData}
+
 
                 <ReservationComponent
                     open={open}

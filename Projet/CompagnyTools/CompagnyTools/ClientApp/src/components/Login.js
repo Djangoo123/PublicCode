@@ -78,7 +78,6 @@ export class Login extends Component {
                 },
             })
             .then((data) => {
-                console.log(data)
                 localStorage.clear();
                 window.location.href = "/Home";
             })

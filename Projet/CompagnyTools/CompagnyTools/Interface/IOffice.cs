@@ -10,7 +10,6 @@ namespace CompagnyTools.Interface
         public DataOffice DuplicateDesk(DataOffice model);
         public List<OfficeModel> CreateAMap(MapCreationModel model);
         public int DeleteDesk(int Id);
-
         public bool CreateReservation(OfficeModel model);
         public List<ReservationResultModel>? GetReservationResult(int deskId);
     }

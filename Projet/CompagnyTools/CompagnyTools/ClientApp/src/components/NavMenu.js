@@ -67,7 +67,7 @@ export class NavMenu extends Component {
                             <NavItem>
                                 <NavLink tag={Link} className="text-dark" to="/Login">{!hideItemIfLog ? "Login" : "Logout"}</NavLink>
                                 </NavItem>
-                            {!hideItemAdmin ?
+                            {hideItemAdmin ?
                                 <NavItem>
                                     <NavLink tag={Link} className="text-dark" to="/UserAdministration">Manage Users</NavLink>
                                 </NavItem> : null}

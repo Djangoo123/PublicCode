@@ -26,13 +26,15 @@ export class OfficeMapping extends Component {
             userName: "",
             dataReservation: null,
             showAdminElement: false,
-            isAdmin : false,
+            isAdmin: false,
+            showMap: false,
         };
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleDuplicate = this.handleDuplicate.bind(this);
         this.handleDeleteItem = this.handleDeleteItem.bind(this);
         this.handleDesk = this.handleDesk.bind(this);
+        this.handleMove = this.handleMove.bind(this);
         this.handleOpenPopUp = this.handleOpenPopUp.bind(this);
         this.handleClose = this.handleClose.bind(this);
         this.handleCreateReservation = this.handleCreateReservation.bind(this);
@@ -195,9 +197,16 @@ export class OfficeMapping extends Component {
                 })
     }
 
+    handleMove(desk) {
+        const { isAdmin } = this.state;
+        if (isAdmin) {
+            this.setState({ desk })
+        }
+    }
+
     render() {
 
-        const { dataMap, desk, open, dataReservation, showAdminElement, isAdmin } = this.state;
+        const { dataMap, desk, open, dataReservation, showAdminElement, isAdmin, showMap } = this.state;
 
         let now = dayjs();
         let dateWeek = now.add('30', 'day');
@@ -206,16 +215,22 @@ export class OfficeMapping extends Component {
 
         if ((!nullEmptyOrUndefined(dataMap))) {
             officeData = dataMap.map((item, i) =>
-                <><OfficeMap
-                    data={item}
-                    onSelect={desk => this.handleDesk(desk)}
-                    onMove={desk => this.setState({ desk })}
-                    editMode={true}
-                    showNavigator={true}
-                    horizontalSize={5}
-                    verticalSize={3}
-                    idSelected={2} /><br /><br /><br /></>
-            )}
+                <><Button variant="contained" onClick={() => { this.setState({ showMap: !showMap }) }}>{showMap ? false : true} Show the maps</Button><br />
+                    <p>These are the desk on the {item[0].location} section</p>
+                <br />
+                    {showMap ? <OfficeMap
+                        data={item}
+                        onSelect={desk => this.handleDesk(desk)}
+                        onMove={desk => this.handleMove(desk)}
+                        editMode={true}
+                        showNavigator={true}
+                        horizontalSize={5}
+                        verticalSize={3}
+                        idSelected={2} /> : null}
+
+                    <br /><br /><br /></>
+            )
+        }
 
         return (
             <div style={{ width: "auto", margin: "10px auto" }}>
@@ -223,8 +238,8 @@ export class OfficeMapping extends Component {
                 <br />
                 {isAdmin ?
                     <Button variant="contained" onClick={() => { this.setState({ showAdminElement: !showAdminElement }) }}>{showAdminElement ? false : true} Admin panel</Button> : null}
-                {showAdminElement && isAdmin ?   
-                        <><br /><br /><Grid container>
+                {showAdminElement && isAdmin ?
+                    <><br /><br /><Grid container>
                         <Grid item xs={4}>
                             <Button onClick={this.handleSubmit} variant="contained" type="Submit">Save my map</Button>
                         </Grid>
@@ -253,7 +268,7 @@ export class OfficeMapping extends Component {
                     <br />
                     <Grid container>
                         <Grid item xs={4}>
-                            <Button disabled={nullEmptyOrUndefined(desk) ? true : false}  onClick={this.handleOpenPopUp} variant="contained" type="Submit">Reserve this location</Button>
+                            <Button disabled={nullEmptyOrUndefined(desk) ? true : false} onClick={this.handleOpenPopUp} variant="contained" type="Submit">Reserve this location</Button>
                         </Grid>
                     </Grid>
                 </div>
@@ -266,8 +281,6 @@ export class OfficeMapping extends Component {
                 <hr />
                 <br />
                 {officeData}
-
-
                 <ReservationComponent
                     open={open}
                     dataReservation={dataReservation}

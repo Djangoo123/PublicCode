@@ -2,8 +2,9 @@
 {
     public class MapCreationModel
     {
-        public int LineX { get; set; }
-        public int LineY { get; set; }
-        public int TypeDesk { get; set; }
+        public int NumberOffice { get; set; }
+        public int NumberLine { get; set; }
+        public string? Location { get; set; }
+        public string? TypeDesk { get; set; }
     }
 }

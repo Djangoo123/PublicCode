@@ -94,22 +94,19 @@ namespace CompagnyTools.Services
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public List<OfficeModel> CreateAMap(MapCreationModel model)
+        public List<DataOffice>? CreateAMap(MapCreationModel model)
         {
             try
             {
-                // delete all existings records
-                _context.Equipments.ExecuteDelete();
-                _context.DataOffice.ExecuteDelete();
+                int id = _context.DataOffice.Max(e => e.Id);
 
                 DesksCreationHelper desksCreationHelper = new();
-                var test = desksCreationHelper.CreateDesks(model.LineX, model.LineY, model.TypeDesk);
+                List<DataOffice>? result = desksCreationHelper.CreateDesks(model.NumberOffice, model.NumberLine, model.TypeDesk, id, model.Location);
 
-                return null;
+                return result;
             }
             catch (Exception)
             {
-
                 throw;
             }
         }

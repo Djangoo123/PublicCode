@@ -1,57 +1,45 @@
-﻿using DAL.Entities;
+﻿using DAL.Context;
+using DAL.Entities;
 
 namespace CompagnyTools.Helpers
 {
     public class DesksCreationHelper
     {
-        public List<DataOffice> CreateDesks(int lineX, int lineY, int typeDesk)
+        public List<DataOffice> CreateDesks(int numberOfDesk, int numberOfLine, string typeDesk, int maxIdInDB, string location)
         {
-			try
-			{
-				List<DataOffice> deskToCreate = new();
-                int IdInProgress = 0; ;
+            try
+            {
+                List<DataOffice>? deskToCreate = new();
 
-                // begin by creatin on the axe X
-				for (int i = 0; i < lineX; i++) {
-
-                    DataOffice dataOffice = new()
-					{
-						Id = i + 1,
-						Chairdirection = "south",
-						X = i,
-						Y = lineY,
-						Equipments = CreationEquipmentByType(i + 1, typeDesk)
-                    };
-
-                    IdInProgress = i;
-                    deskToCreate.Add(dataOffice);
-				}
-
-                //  axe Y
-                for (int i = 0; i < lineX; i++)
+                for (int i = 0; i < numberOfLine; i++)
                 {
-                    DataOffice dataOffice = new()
+                    int IdInProgress = maxIdInDB != 0 ? maxIdInDB + 1 : 1;
+
+                    for (int x = 0; x < numberOfDesk; x++)
                     {
-                        Id = IdInProgress + 1,
-                        Chairdirection = "south",
-                        X = lineX,
-                        Y = i,
-                        Equipments = CreationEquipmentByType(IdInProgress + 1, typeDesk)
-                    };
+                        DataOffice dataOffice = new()
+                        {
+                            Id = IdInProgress + 1,
+                            Chairdirection = "south",
+                            X = x,
+                            Y = i,
+                            Location = location,
+                            Equipments = CreationEquipmentByType(IdInProgress + 1, typeDesk)
+                        };
 
-                    deskToCreate.Add(dataOffice);
+                        deskToCreate.Add(dataOffice);
+                    }
                 }
-
                 return deskToCreate;
-            } 
+            }
             catch (Exception)
-			{
-				throw;
-			}
+            {
+                throw;
+            }
         }
 
 
-        private static List<Equipments> CreationEquipmentByType(int deskId, int typeDesk)
+        private static List<Equipments> CreationEquipmentByType(int deskId, string typeDesk)
         {
             try
             {
@@ -59,7 +47,7 @@ namespace CompagnyTools.Helpers
 
                 switch (typeDesk)
                 {
-                    case 1:
+                    case "Full":
                         equipment = new List<Equipments>()
                         {
                                 new Equipments { DeskId = deskId, Type = "desk", Specification = "Simple desk" },
@@ -72,7 +60,7 @@ namespace CompagnyTools.Helpers
                                 new Equipments { DeskId = deskId, Type = "drawer", Specification = "Simple drawer" },
                         };
                         break;
-                    case 2:
+                    case "Laptop":
                         equipment = new List<Equipments>()
                         {
                                 new Equipments { DeskId = deskId, Type = "desk", Specification = "Simple desk" },

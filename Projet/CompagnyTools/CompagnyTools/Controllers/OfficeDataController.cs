@@ -132,13 +132,13 @@ namespace CompagnyTools.Controllers
         /// <param name="model">Office map data</param>
         /// <returns>office data (desks)</returns>
         [HttpPost("createAMap")]
-        public ActionResult<List<OfficeModel>> CreateAMap([FromBody] MapCreationModel model)
+        public ActionResult CreateAMap([FromBody] MapCreationModel model)
         {
             try
             {
                 if(model != null)
                 {
-                    _iOffice.CreateAMap(model);
+                    List<DataOffice>? process = _iOffice.CreateAMap(model);
                     return Ok();
                 }
                 else

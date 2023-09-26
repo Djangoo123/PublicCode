@@ -22,6 +22,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { nullOrUndefined } from "../Shared/Validation";
+import Button from '@mui/material/Button';
+import Modal from '@mui/material/Modal';
+import TextField from '@mui/material/TextField';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -190,6 +193,10 @@ export default function UserAdministration() {
     const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [users, setUsers] = React.useState([]);
+    const [open, setOpen] = React.useState(false);
+    const [username, setUsername] = React.useState('');
+    const [password, setPassword] = React.useState('');
+    const [email, setEmail] = React.useState('');
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -239,7 +246,6 @@ export default function UserAdministration() {
                 selected.slice(selectedIndex + 1),
             );
         }
-
         setSelected(newSelected);
     };
 
@@ -254,6 +260,59 @@ export default function UserAdministration() {
 
     const handleChangeDense = (event) => {
         setDense(event.target.checked);
+    };
+
+    const handleChangeCreateUser = (event) => {
+        setOpen(true);
+    };
+
+    const handleClosePopUp = (event) => {
+        setOpen(false);
+    };
+
+    const handleSubmit = event => {
+        event.preventDefault();
+
+        let data = {};
+        data.Username = username;
+        data.Password = password;
+        data.Email = email;
+
+        let url = "/api/Account/createUser";
+
+        fetch(url,
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(async response => {
+                const isJson = response.headers.get('content-type')?.includes('application/json');
+                const data = isJson && await response.json();
+
+                if (response.ok) {
+                    window.location.reload();
+                }
+
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+    };
+
+    const handleUser = (event) => {
+        setUsername(event.target.value);
+    };
+
+    const handleChangePassword = (event) => {
+        setPassword(event.target.value);
+    };
+
+    const handleChangeEmail = (event) => {
+        setEmail(event.target.value);
     };
 
     const isSelected = (username) => selected.indexOf(username) !== -1;
@@ -345,6 +404,51 @@ export default function UserAdministration() {
                 control={<Switch checked={dense} onChange={handleChangeDense} />}
                 label="Dense padding"
             />
+            <br/>
+            <Button variant="contained" onClick={handleChangeCreateUser}> Create User</Button>
+            <Modal
+                open={open}
+                onClose={handleClosePopUp}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box className="modalStyle">
+                    <form
+                        onSubmit={handleSubmit}
+                        autoComplete="off"
+                    >
+                        <TextField
+                            label="Name"
+                            required
+                            value={username}
+                            onChange={handleUser}
+                            margin="normal"
+                        />
+                        <br />
+                        <TextField
+                            label="password"
+                            type={"password"}
+                            required
+                            value={password}
+                            onChange={handleChangePassword}
+                            margin="normal"
+                        />
+                        <br />
+                        <TextField
+                            label="Email"
+                            type={"email"}
+                            required
+                            value={email}
+                            onChange={handleChangeEmail}
+                            margin="normal"
+                        />
+                        <br />
+                        <Button type="submit" variant="outlined">
+                            Validate
+                        </Button>
+                    </form>
+                </Box>
+            </Modal>
         </Box>
     );
 }

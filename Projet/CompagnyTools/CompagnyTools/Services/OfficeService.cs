@@ -105,6 +105,8 @@ namespace CompagnyTools.Services
 
                 return result;
             }
+
+
             catch (Exception)
             {
                 throw;

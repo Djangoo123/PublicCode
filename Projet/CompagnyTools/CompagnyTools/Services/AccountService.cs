@@ -19,6 +19,11 @@ namespace CompagnyTools.Services
         const int iterations = 350000;
         HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA512;
 
+        /// <summary>
+        /// Creating a user and assigning admin rights
+        /// </summary>
+        /// <param name="model">User data</param>
+        /// <returns></returns>
         public Users CreateUser(LoginModel model)
         {
             try
@@ -32,8 +37,17 @@ namespace CompagnyTools.Services
                     Username = model.Username,
                     Salt = salt,
                 };
-                
+              
                 _context.Users.Add(user);
+
+                UsersRoles usersRoles = new() {
+                    UserId = user.Id,
+                    UserRight = "Admin",
+                };
+
+                user.UsersRoles.Add(usersRoles);
+
+                _context.UsersRoles.AddRange(user.UsersRoles);
                 _context.SaveChanges();
 
                 return user;

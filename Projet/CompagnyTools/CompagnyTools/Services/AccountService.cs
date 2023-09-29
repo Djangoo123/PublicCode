@@ -58,6 +58,12 @@ namespace CompagnyTools.Services
             }
         }
 
+        /// <summary>
+        /// Create hash for a given password
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="salt"></param>
+        /// <returns></returns>
         private string HashPasword(string password, out byte[] salt)
         {
             salt = RandomNumberGenerator.GetBytes(keySize);
@@ -70,6 +76,10 @@ namespace CompagnyTools.Services
             return Convert.ToHexString(hash);
         }
 
+        /// <summary>
+        /// Select all user in DB
+        /// </summary>
+        /// <returns></returns>
         public List<Users>? GetAllUsers()
         {
             try
@@ -77,6 +87,40 @@ namespace CompagnyTools.Services
                 List<Users>? result = new();
                 result = _context.Users.ToList();
                 return result;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Delete User by his Id
+        /// </summary>
+        /// <param name="Id">User's id</param>
+        public bool DeleteUser(int[] Ids)
+        {
+            try
+            {
+                for (int i = 0; i < Ids.Count(); i++)
+                {
+                    int userId = Convert.ToInt32(Ids[i]);   
+
+                    Users? user = _context.Users.SingleOrDefault(x => x.Id == userId);
+
+                    if (user != null)
+                    {
+                        _context.UsersRoles.RemoveRange(user.UsersRoles);
+                        _context.Users.Remove(user);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                return true;
+
             }
             catch (Exception)
             {

@@ -39,6 +39,11 @@ namespace CompagnyTools.Controllers
 
         }
 
+        /// <summary>
+        /// Entry point for user's creation
+        /// </summary>
+        /// <param name="model">user informations</param>
+        /// <returns></returns>
         [HttpPost("createUser")]
         public ActionResult<UserModel> CreateUser([FromBody] LoginModel model)
         {
@@ -60,5 +65,25 @@ namespace CompagnyTools.Controllers
                 return BadRequest(ModelState);
             }
         }
+
+        /// <summary>
+        /// Delete given user
+        /// </summary>
+        /// <param name="Id">user's id</param>
+        /// <returns></returns>
+        [HttpPost("DeleteUser")]
+        public ActionResult DeleteUser([FromBody] int[] Ids)
+        {
+            bool process = _iAccount.DeleteUser(Ids);
+            if (process)
+            {
+                return Ok();
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
     }
 }

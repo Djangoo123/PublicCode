@@ -130,7 +130,29 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-    const { numSelected } = props;
+    const { numSelected, user } = props;
+    const handleDeleteUser = (event) => {
+
+        let url = "/api/Account/DeleteUser";
+
+        fetch(url,
+            {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user)
+            })
+            .then(async response => {
+                if (response.ok) {
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
+    };
 
     return (
         <Toolbar
@@ -164,7 +186,7 @@ function EnhancedTableToolbar(props) {
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Delete">
+                <Tooltip title="Delete" onClick={(event) => handleDeleteUser(event)}>
                     <IconButton>
                         <DeleteIcon />
                     </IconButton>
@@ -206,7 +228,7 @@ export default function UserAdministration() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = users.map((n) => n.username);
+            const newSelected = users.map((n) => n.id);
             setSelected(newSelected);
             return;
         }
@@ -229,13 +251,13 @@ export default function UserAdministration() {
 
     }, []);
 
-    const handleClick = (event, username) => {
+    const handleClick = (event, id) => {
 
-        const selectedIndex = selected.indexOf(username);
+        const selectedIndex = selected.indexOf(id);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, username);
+            newSelected = newSelected.concat(selected, id);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -290,8 +312,6 @@ export default function UserAdministration() {
                 body: JSON.stringify(data)
             })
             .then(async response => {
-                const isJson = response.headers.get('content-type')?.includes('application/json');
-                const data = isJson && await response.json();
 
                 if (response.ok) {
                     window.location.reload();
@@ -333,7 +353,7 @@ export default function UserAdministration() {
     return (
         <Box sx={{ width: '100%' }}>
             <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} />
+                <EnhancedTableToolbar numSelected={selected.length} user={selected} />
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
@@ -350,13 +370,13 @@ export default function UserAdministration() {
                         />
                         <TableBody>
                             {visibleRows.map((row, index) => {
-                                const isItemSelected = isSelected(row.username);
+                                const isItemSelected = isSelected(row.id);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
                                 return (
                                     <TableRow
                                         hover
-                                        onClick={(event) => handleClick(event, row.username)}
+                                        onClick={(event) => handleClick(event, row.id)}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}

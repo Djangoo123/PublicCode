@@ -1,4 +1,4 @@
-﻿import React, {  useEffect } from 'react';
+﻿import React from 'react';
 import PropTypes from 'prop-types';
 import { alpha } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -16,15 +16,9 @@ import Paper from '@mui/material/Paper';
 import Checkbox from '@mui/material/Checkbox';
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
-import { nullOrUndefined } from "../Shared/Validation";
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
-import TextField from '@mui/material/TextField';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -62,24 +56,36 @@ const headCells = [
     {
         id: 'username',
         numeric: false,
-        disablePadding: false,
+        disablePadding: true,
         label: 'Username',
     },
     {
-        id: 'email',
+        id: 'dateReservationStart',
         numeric: false,
         disablePadding: false,
-        label: 'Email',
-    }
+        label: 'Start',
+    },
+    {
+        id: 'dateReservationEnd',
+        numeric: false,
+        disablePadding: false,
+        label: 'End',
+    },
+    {
+        id: 'location',
+        numeric: false,
+        disablePadding: false,
+        label: 'Location',
+    },
 ];
 
 function EnhancedTableHead(props) {
     const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } =
         props;
-
     const createSortHandler = (property) => (event) => {
         onRequestSort(event, property);
     };
+
     return (
         <TableHead>
             <TableRow>
@@ -130,29 +136,7 @@ EnhancedTableHead.propTypes = {
 };
 
 function EnhancedTableToolbar(props) {
-    const { numSelected, user } = props;
-    const handleDeleteUser = (event) => {
-
-        let url = "/api/Account/DeleteUser";
-
-        fetch(url,
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(user)
-            })
-            .then(async response => {
-                if (response.ok) {
-                    window.location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
-    };
+    const { numSelected } = props;
 
     return (
         <Toolbar
@@ -181,12 +165,12 @@ function EnhancedTableToolbar(props) {
                     id="tableTitle"
                     component="div"
                 >
-                    Users
+                    List of reservation
                 </Typography>
             )}
 
             {numSelected > 0 ? (
-                <Tooltip title="Delete" onClick={(event) => handleDeleteUser(event)}>
+                <Tooltip title="Delete">
                     <IconButton>
                         <DeleteIcon />
                     </IconButton>
@@ -206,19 +190,14 @@ EnhancedTableToolbar.propTypes = {
     numSelected: PropTypes.number.isRequired,
 };
 
-export default function UserAdministration() {
+export default function EnhancedTable(props) {
+    const { reservations } = props;
 
     const [order, setOrder] = React.useState('asc');
     const [orderBy, setOrderBy] = React.useState('calories');
     const [selected, setSelected] = React.useState([]);
     const [page, setPage] = React.useState(0);
-    const [dense, setDense] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    const [users, setUsers] = React.useState([]);
-    const [open, setOpen] = React.useState(false);
-    const [username, setUsername] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [email, setEmail] = React.useState('');
 
     const handleRequestSort = (event, property) => {
         const isAsc = orderBy === property && order === 'asc';
@@ -228,36 +207,19 @@ export default function UserAdministration() {
 
     const handleSelectAllClick = (event) => {
         if (event.target.checked) {
-            const newSelected = users.map((n) => n.id);
+            const newSelected = reservations.map((n) => n.name);
             setSelected(newSelected);
             return;
         }
         setSelected([]);
     };
 
-    useEffect(() => {
-        let login = JSON.parse(window.localStorage.getItem('login'));
-
-        if (!nullOrUndefined(login)) {
-            const checkIfAdmin = login.usersRoles.find(x => x.userRight.toLowerCase() === "admin".toLowerCase());
-            if (nullOrUndefined(checkIfAdmin)) {
-                window.location.href = "/Home";
-            }
-
-            fetch('/api/Account/getAllUsers')
-                .then(response => response.json())
-                .then(data => setUsers(data));
-        }
-
-    }, []);
-
-    const handleClick = (event, id) => {
-
-        const selectedIndex = selected.indexOf(id);
+    const handleClick = (event, name) => {
+        const selectedIndex = selected.indexOf(name);
         let newSelected = [];
 
         if (selectedIndex === -1) {
-            newSelected = newSelected.concat(selected, id);
+            newSelected = newSelected.concat(selected, name);
         } else if (selectedIndex === 0) {
             newSelected = newSelected.concat(selected.slice(1));
         } else if (selectedIndex === selected.length - 1) {
@@ -268,6 +230,7 @@ export default function UserAdministration() {
                 selected.slice(selectedIndex + 1),
             );
         }
+
         setSelected(newSelected);
     };
 
@@ -280,85 +243,30 @@ export default function UserAdministration() {
         setPage(0);
     };
 
-    const handleChangeDense = (event) => {
-        setDense(event.target.checked);
-    };
-
-    const handleChangeCreateUser = (event) => {
-        setOpen(true);
-    };
-
-    const handleClosePopUp = (event) => {
-        setOpen(false);
-    };
-
-    const handleSubmit = event => {
-        event.preventDefault();
-
-        let data = {};
-        data.Username = username;
-        data.Password = password;
-        data.Email = email;
-
-        let url = "/api/Account/createUser";
-
-        fetch(url,
-            {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(async response => {
-
-                if (response.ok) {
-                    window.location.reload();
-                }
-
-            })
-            .catch(error => {
-                console.error('There was an error!', error);
-            });
-    };
-
-    const handleUser = (event) => {
-        setUsername(event.target.value);
-    };
-
-    const handleChangePassword = (event) => {
-        setPassword(event.target.value);
-    };
-
-    const handleChangeEmail = (event) => {
-        setEmail(event.target.value);
-    };
-
-    const isSelected = (username) => selected.indexOf(username) !== -1;
+    const isSelected = (name) => selected.indexOf(name) !== -1;
 
     // Avoid a layout jump when reaching the last page with empty rows.
     const emptyRows =
-        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - users.length) : 0;
+        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - reservations.length) : 0;
 
     const visibleRows = React.useMemo(
         () =>
-            stableSort(users, getComparator(order, orderBy)).slice(
+            stableSort(reservations, getComparator(order, orderBy)).slice(
                 page * rowsPerPage,
                 page * rowsPerPage + rowsPerPage,
             ),
-        [users, order, orderBy, page, rowsPerPage],
+        [reservations, order, orderBy, page, rowsPerPage],
     );
 
     return (
-        <Box sx={{ width: '100%' }}>
-            <Paper sx={{ width: '100%', mb: 2 }}>
-                <EnhancedTableToolbar numSelected={selected.length} user={selected} />
+        <Box sx={{ width: '98%' }}>
+            <Paper sx={{ width: '98%', mb: 2 }}>
+                <EnhancedTableToolbar numSelected={selected.length} />
                 <TableContainer>
                     <Table
                         sx={{ minWidth: 750 }}
                         aria-labelledby="tableTitle"
-                        size={dense ? 'small' : 'medium'}
+                        size={'medium'}
                     >
                         <EnhancedTableHead
                             numSelected={selected.length}
@@ -366,17 +274,17 @@ export default function UserAdministration() {
                             orderBy={orderBy}
                             onSelectAllClick={handleSelectAllClick}
                             onRequestSort={handleRequestSort}
-                            rowCount={users.length}
+                            rowCount={reservations.length}
                         />
                         <TableBody>
                             {visibleRows.map((row, index) => {
-                                const isItemSelected = isSelected(row.id);
+                                const isItemSelected = isSelected(row.username);
                                 const labelId = `enhanced-table-checkbox-${index}`;
 
                                 return (
                                     <TableRow
                                         hover
-                                        onClick={(event) => handleClick(event, row.id)}
+                                        onClick={(event) => handleClick(event, row.username)}
                                         role="checkbox"
                                         aria-checked={isItemSelected}
                                         tabIndex={-1}
@@ -394,14 +302,16 @@ export default function UserAdministration() {
                                             />
                                         </TableCell>
                                         <TableCell align="right">{row.username}</TableCell>
-                                        <TableCell align="right">{row.email}</TableCell>
+                                        <TableCell align="right">{row.dateReservationStart}</TableCell>
+                                        <TableCell align="right">{row.dateReservationEnd}</TableCell>
+                                        <TableCell align="right">{row.location}</TableCell>
                                     </TableRow>
                                 );
                             })}
                             {emptyRows > 0 && (
                                 <TableRow
                                     style={{
-                                        height: (dense ? 33 : 53) * emptyRows,
+                                        height: (53) * emptyRows,
                                     }}
                                 >
                                     <TableCell colSpan={6} />
@@ -413,62 +323,13 @@ export default function UserAdministration() {
                 <TablePagination
                     rowsPerPageOptions={[5, 10, 25]}
                     component="div"
-                    count={users.length}
+                    count={reservations.length}
                     rowsPerPage={rowsPerPage}
                     page={page}
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                 />
             </Paper>
-            <FormControlLabel
-                control={<Switch checked={dense} onChange={handleChangeDense} />}
-                label="Dense padding"
-            />
-            <br/>
-            <Button variant="contained" onClick={handleChangeCreateUser}> Create User</Button>
-            <Modal
-                open={open}
-                onClose={handleClosePopUp}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box className="modalStyle">
-                    <form
-                        onSubmit={handleSubmit}
-                        autoComplete="off"
-                    >
-                        <TextField
-                            label="Name"
-                            required
-                            value={username}
-                            onChange={handleUser}
-                            margin="normal"
-                        />
-                        <br />
-                        <TextField
-                            label="password"
-                            type={"password"}
-                            required
-                            value={password}
-                            onChange={handleChangePassword}
-                            margin="normal"
-                        />
-                        <br />
-                        <TextField
-                            label="Email"
-                            type={"email"}
-                            required
-                            value={email}
-                            onChange={handleChangeEmail}
-                            margin="normal"
-                        />
-                        <br />
-                        <Button type="submit" variant="outlined">
-                            Validate
-                        </Button>
-                    </form>
-                </Box>
-            </Modal>
         </Box>
     );
 }

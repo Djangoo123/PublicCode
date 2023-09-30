@@ -12,6 +12,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker';
 import { nullEmptyOrUndefined } from "../../components/Shared/Validation";
 import '../style/Reservation.css'
+import EnhancedTable from "../office/ReservationGrid";
 
 export class ReservationComponent extends Component {
 
@@ -51,14 +52,6 @@ export class ReservationComponent extends Component {
         const { open, dataReservation } = this.props;
         const { userName, showErrorMessage } = this.state;
 
-        let listReservations;
-        if ((!nullEmptyOrUndefined(dataReservation))){
-            listReservations = dataReservation.map((item, i) =>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    {"This desk is already reserved by " + item.username + " for the dates " + item.dateReservationStart + " to " + item.dateReservationEnd}
-                </Typography>)
-        }
-
         return (
             <div>
                 <Modal
@@ -77,7 +70,7 @@ export class ReservationComponent extends Component {
                                 Warning : Only dates of the current month are accepted
                             </Typography>
                             <br />
-                            {listReservations}
+                            <EnhancedTable reservations={dataReservation} />
                             <br />
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                 <DemoContainer components={['DateRangePicker', 'DateRangePicker']}>
@@ -103,7 +96,7 @@ export class ReservationComponent extends Component {
                             <br />
                             <br />
                             <Button
-                                onClick={this.handleReservation} variant="contained" type="Submit">
+                                onClick={this.handleReservation} className="btnReservation" variant="contained" type="Submit">
                                 Reserve this location
                             </Button>
                             <br />

@@ -64,8 +64,7 @@ export class MapCreation extends Component {
         data.location = location;
         data.typeDesk = radioButton;
 
-        console.log(data)
-        let url = "/api/OfficeData/createAMap";
+        let url = "/api/OfficeData/CreateAMap";
 
         fetch(url,
             {

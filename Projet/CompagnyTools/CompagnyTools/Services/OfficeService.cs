@@ -186,7 +186,7 @@ namespace CompagnyTools.Services
                     date = new DateTime(date.Value.Year, date.Value.Month, DateTime.DaysInMonth(date.Value.Year, date.Value.Month));
 
                     // We block all creation beyond the current month
-                    if (model.DateReservationEnd.Value.AddDays(1).ToUniversalTime() > date.Value.ToUniversalTime())
+                    if (model.DateReservationEnd.Value.ToUniversalTime() > date.Value.ToUniversalTime())
                     {
                         return false;
                     }
@@ -228,9 +228,9 @@ namespace CompagnyTools.Services
         }
 
         /// <summary>
-        /// 
+        /// Retrieve reservation in a given period
         /// </summary>
-        /// <param name="deskId"></param>
+        /// <param name="deskId">Desk's id</param>
         /// <returns></returns>
         public List<ReservationResultModel>? GetReservationResult(int deskId)
         {
@@ -239,10 +239,14 @@ namespace CompagnyTools.Services
                 // Init
                 List<ReservationResultModel> result = new();
 
-                DateTime? date = DateTime.UtcNow;
-                date = new DateTime(date.Value.Year, date.Value.Month, DateTime.DaysInMonth(date.Value.Year, date.Value.Month));
+                DateTime? dateForStartMonth = DateTime.Now;
+                DateTime? dateForEndMonth = DateTime.Now;
 
-                List<Reservations>? data = _context.Reservations.Where(x => x.DeskId == deskId && (x.DateReservationStart.ToUniversalTime() >= DateTime.UtcNow && x.DateReservationEnd.ToUniversalTime() <= date.Value.ToUniversalTime())).ToList();
+                DateTime startOfMonth = new DateTime(dateForStartMonth.Value.Year, dateForStartMonth.Value.Month, 1);
+                dateForEndMonth = new DateTime(dateForEndMonth.Value.Year, dateForEndMonth.Value.Month, DateTime.DaysInMonth(dateForEndMonth.Value.Year, dateForEndMonth.Value.Month));
+                dateForEndMonth = dateForEndMonth.Value.AddHours(23).AddMinutes(59);
+
+                List<Reservations>? data = _context.Reservations.Where(x => x.DeskId == deskId && x.DateReservationStart.ToUniversalTime() >= startOfMonth && x.DateReservationEnd.ToUniversalTime() <= dateForEndMonth.Value.ToUniversalTime()).ToList();
 
                 if (data != null)
                 {
@@ -254,6 +258,7 @@ namespace CompagnyTools.Services
                             DateReservationEnd = item.DateReservationEnd.AddDays(1).ToShortDateString(),
                             DateReservationStart = item.DateReservationStart.AddDays(1).ToShortDateString(),
                             Location = item.Location,
+                            Id = item.Id,
                         };
 
                         result.Add(model);
@@ -268,5 +273,31 @@ namespace CompagnyTools.Services
             }
         }
 
+        /// <summary>
+        /// Delete reservation model by Id
+        /// </summary>
+        /// <param name="reservationId">Id param</param>
+        /// <returns></returns>
+        public bool DeleteReservation(int reservationId)
+        {
+            try
+            {
+                Reservations? reservation = _context.Reservations.FirstOrDefault(x => x.Id == reservationId);
+                if (reservation != null)
+                {
+                    _context.Reservations.Remove(reservation);
+                    _context.SaveChanges();
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

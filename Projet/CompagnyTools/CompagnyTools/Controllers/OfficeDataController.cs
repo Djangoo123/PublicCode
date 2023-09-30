@@ -25,7 +25,7 @@ namespace CompagnyTools.Controllers
         /// Retrieving data from the office to create our map
         /// </summary>
         /// <returns>office data (desks)</returns>
-        [HttpGet("getData")]
+        [HttpGet("GetData")]
         public ActionResult<List<OfficeModel>> GetData()
         {
             try
@@ -45,7 +45,7 @@ namespace CompagnyTools.Controllers
         /// </summary>
         /// <param name="model">Office map data</param>
         /// <returns>office data (desks)</returns>
-        [HttpPost("updateOfficeMap")]
+        [HttpPost("UpdateOfficeMap")]
         public ActionResult<List<OfficeModel>> UpdateOfficeMap([FromBody] List<OfficeModel> model)
         {
             try
@@ -71,7 +71,7 @@ namespace CompagnyTools.Controllers
         /// </summary>
         /// <param name="model">desk data</param>
         /// <returns></returns>
-        [HttpPost("duplicateDesk")]
+        [HttpPost("DuplicateDesk")]
         public ActionResult<OfficeModel> DuplicateDesk([FromBody] OfficeModel model)
         {
             try
@@ -105,7 +105,7 @@ namespace CompagnyTools.Controllers
         /// </summary>
         /// <param name="model">Id of the deleted item</param>
         /// <returns></returns>
-        [HttpPost("deleteDesk")]
+        [HttpPost("DeleteDesk")]
         public ActionResult<int> DeleteDesk([FromBody] OfficeModel model)
         {
             try
@@ -131,7 +131,7 @@ namespace CompagnyTools.Controllers
         /// </summary>
         /// <param name="model">Office map data</param>
         /// <returns>office data (desks)</returns>
-        [HttpPost("createAMap")]
+        [HttpPost("CreateAMap")]
         public ActionResult CreateAMap([FromBody] MapCreationModel model)
         {
             try
@@ -157,7 +157,7 @@ namespace CompagnyTools.Controllers
         /// </summary>
         /// <param name="model">data model</param>
         /// <returns></returns>
-        [HttpPost("reserveLocation")]
+        [HttpPost("ReserveLocation")]
         public ActionResult ReserveLocation([FromBody] OfficeModel model)
         {
             try
@@ -191,7 +191,7 @@ namespace CompagnyTools.Controllers
         /// <param name="deskId">Desk id</param>
         /// <param name="mode">Indicate if we are in week or month mode</param>
         /// <returns></returns>
-        [HttpPost("getReservationData")]
+        [HttpPost("GetReservationData")]
         public ActionResult<List<ReservationResultModel>>? GetReservationData([FromBody] int deskId)
         {
             try
@@ -200,6 +200,33 @@ namespace CompagnyTools.Controllers
                 if (data != null)
                 {
                     return Ok(data);
+                }
+                else
+                {
+                    return NoContent();
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex);
+            }
+        }
+
+
+        /// <summary>
+        /// Delete a reservation by his id
+        /// </summary>
+        /// <param name="reservationId">reservation id</param>
+        /// <returns></returns>
+        [HttpPost("DeleteReservation")]
+        public ActionResult DeleteReservation([FromBody] int reservationId)
+        {
+            try
+            {
+               bool result = _iOffice.DeleteReservation(reservationId);
+                if (result)
+                {
+                    return Ok();
                 }
                 else
                 {

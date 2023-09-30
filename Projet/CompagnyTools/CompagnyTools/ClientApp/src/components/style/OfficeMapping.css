@@ -7,8 +7,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 600px;
-    height: 500px;
+    width: 50%;
+    height: auto;
     border: 2px solid #000;
     background-color: #fff;
 }

@@ -41,7 +41,7 @@ export class OfficeMapping extends Component {
     }
 
     componentDidMount() {
-        fetch('/api/OfficeData/getData')
+        fetch('/api/OfficeData/GetData')
             .then(response => response.json())
             .then(data => this.setState({ dataMap: data, desk: null }));
 
@@ -71,7 +71,7 @@ export class OfficeMapping extends Component {
 
         if (!nullEmptyOrUndefined(event)) {
 
-            let url = "/api/OfficeData/getReservationData";
+            let url = "/api/OfficeData/GetReservationData";
 
             fetch(url,
                 {
@@ -138,7 +138,7 @@ export class OfficeMapping extends Component {
             this.setState({ deskToDuplicate: desk })
         }
 
-        let url = "/api/OfficeData/duplicateDesk";
+        let url = "/api/OfficeData/DuplicateDesk";
 
         fetch(url,
             {
@@ -160,7 +160,7 @@ export class OfficeMapping extends Component {
 
         const { desk, dataMap } = this.state;
         let foundItem = dataMap.find(x => x.id === desk.id);
-        let url = "/api/OfficeData/deleteDesk";
+        let url = "/api/OfficeData/DeleteDesk";
 
         fetch(url,
             {
@@ -180,7 +180,7 @@ export class OfficeMapping extends Component {
     handleSubmit() {
         const { dataMap } = this.state;
 
-        let url = "/api/OfficeData/updateOfficeMap";
+        let url = "/api/OfficeData/UpdateOfficeMap";
 
         fetch(url,
             {

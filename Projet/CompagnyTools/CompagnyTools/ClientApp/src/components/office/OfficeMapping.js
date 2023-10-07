@@ -124,10 +124,14 @@ export class OfficeMapping extends Component {
                 },
                 body: JSON.stringify(desk)
             })
-            .then((res) => res.json())
-            .then((data) => {
-
+            .then(async response => {
+                if (response.ok) {
+                    this.handleClose();
+                }
             })
+            .catch(error => {
+                console.error('There was an error!', error);
+            });
     };
 
     handleDuplicate() {

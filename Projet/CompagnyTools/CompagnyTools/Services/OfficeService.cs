@@ -278,21 +278,25 @@ namespace CompagnyTools.Services
         /// </summary>
         /// <param name="reservationId">Id param</param>
         /// <returns></returns>
-        public bool DeleteReservation(int reservationId)
+        public bool DeleteReservation(int[] reservationId)
         {
             try
             {
-                Reservations? reservation = _context.Reservations.FirstOrDefault(x => x.Id == reservationId);
-                if (reservation != null)
+                for (int i = 0; i < reservationId.Count(); i++)
                 {
-                    _context.Reservations.Remove(reservation);
-                    _context.SaveChanges();
-                    return true;
+                    int IdReservation = Convert.ToInt32(reservationId[i]);
+                    Reservations? reservation = _context.Reservations.FirstOrDefault(x => x.Id == IdReservation);
+                    if (reservation != null)
+                    {
+                        _context.Reservations.Remove(reservation);
+                        _context.SaveChanges();
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
-                else
-                {
-                    return false;
-                }
+                return true;
             }
             catch (Exception)
             {

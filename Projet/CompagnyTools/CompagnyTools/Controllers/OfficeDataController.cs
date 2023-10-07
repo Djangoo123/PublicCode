@@ -219,7 +219,7 @@ namespace CompagnyTools.Controllers
         /// <param name="reservationId">reservation id</param>
         /// <returns></returns>
         [HttpPost("DeleteReservation")]
-        public ActionResult DeleteReservation([FromBody] int reservationId)
+        public ActionResult DeleteReservation([FromBody] int[] reservationId)
         {
             try
             {

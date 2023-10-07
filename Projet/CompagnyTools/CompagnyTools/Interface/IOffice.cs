@@ -11,7 +11,7 @@ namespace CompagnyTools.Interface
         public List<DataOffice>? CreateAMap(MapCreationModel model);
         public int DeleteDesk(int Id);
         public bool CreateReservation(OfficeModel model);
-        public bool DeleteReservation(int reservationId);
+        public bool DeleteReservation(int[] reservationId);
         public List<ReservationResultModel>? GetReservationResult(int deskId);
     }
 }

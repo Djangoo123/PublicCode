@@ -9,3 +9,6 @@
 /Projet/CompagnyTools/DAL/obj
 /Projet/CompagnyTools/DAL/appsettings.json
 /Projet/CompagnyTools/DAL/appsettings.Development.json
+/.vs
+/Projet/Braze/SegmentBackendVS/src/SegmentBackend/obj
+/Projet/Braze/SegmentBackendVS/src/SegmentBackend/Properties

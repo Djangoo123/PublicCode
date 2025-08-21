@@ -55,7 +55,7 @@ namespace SegmentBackend.Services
                         var (ok, errors) = await braze.UpsertAsync(attrs, stoppingToken);
                         okBatches += ok;
                         foreach (var err in errors)
-                            db.BrazeSyncLogs.Add(new BrazeSyncLog { Action = $"Braze {job.Type}", PayloadSummary = $"{chunk.Count} users", Error = err });
+                            db.BrazeSyncLogs.Add(new BrazeSyncLog { Action = $"Braze {job.Type}", PayloadSummary = $"{chunk.Length} users", Error = err });
                     }
 
                     job.Status = BrazeJobStatus.Succeeded;

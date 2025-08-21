@@ -47,12 +47,12 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     if (!db.Users.Any())
     {
-        db.Users.AddRange(new[] {
+        db.Users.AddRange([
             new User { Id = "u1", Country = "FR", Plan = "premium", OrdersCount = 10, TotalSpend = 300, CreatedUtc = DateTime.UtcNow.AddDays(-50) },
             new User { Id = "u2", Country = "BE", Plan = "free", OrdersCount = 2, TotalSpend = 50,  CreatedUtc = DateTime.UtcNow.AddDays(-10) },
             new User { Id = "u3", Country = "NL", Plan = "premium", OrdersCount = 6, TotalSpend = 220, CreatedUtc = DateTime.UtcNow.AddDays(-90) },
             new User { Id = "u4", Country = "FR", Plan = "pro", OrdersCount = 1, TotalSpend = 20,  CreatedUtc = DateTime.UtcNow.AddDays(-5)  }
-        });
+        ]);
         db.SaveChanges();
     }
 }

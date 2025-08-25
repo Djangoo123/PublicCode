@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PursuitSim", "PursuitSim.csproj", "{BE9F65F5-88B9-4A32-89EF-8E0B1391FEC7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE9F65F5-88B9-4A32-89EF-8E0B1391FEC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE9F65F5-88B9-4A32-89EF-8E0B1391FEC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE9F65F5-88B9-4A32-89EF-8E0B1391FEC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE9F65F5-88B9-4A32-89EF-8E0B1391FEC7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BFF9B038-7560-41FE-B7EA-7D44715A0815}
+	EndGlobalSection
+EndGlobal

@@ -15,7 +15,7 @@ namespace SegmentBackend.Controllers
         private readonly AppDbContext _db;
         private static readonly JsonSerializerOptions _json = new() { PropertyNameCaseInsensitive = true };
 
-        public SegmentsController(AppDbContext db) => _db = db;
+        public SegmentsController(AppDbContext db, JsonSerializerOptions jsonOptions) => _db = db;
 
         [HttpPost("preview")]
         public async Task<ActionResult<object>> Preview([FromBody] JsonElement segmentJson, [FromQuery] int take = 25, [FromQuery] int timeoutMs = 5000, CancellationToken ct = default)

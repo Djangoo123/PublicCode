@@ -14,7 +14,7 @@ namespace SegmentBackend.Services
             "orders_count" => nameof(Models.User.OrdersCount),
             "total_spend" => nameof(Models.User.TotalSpend),
             "created_utc" => nameof(Models.User.CreatedUtc),
-            _ => throw new NotSupportedException($"Champ non supporté: {field}")
+            _ => throw new NotSupportedException($"Champ qui marche pas: {field}")
         };
 
         public static Expression<Func<Models.User, bool>> BuildPredicate(RuleGroup root)
@@ -28,7 +28,7 @@ namespace SegmentBackend.Services
         {
             RuleGroup g => BuildGroup(g, param),
             Rule r => BuildRule(r, param),
-            _ => throw new InvalidOperationException("Node inconnu")
+            _ => throw new InvalidOperationException("Node kaput")
         };
 
         private static Expression BuildGroup(RuleGroup g, ParameterExpression param)
@@ -109,14 +109,14 @@ namespace SegmentBackend.Services
                 "in" => CallIn(),
                 "nin" => Expression.Not(CallIn()),
 
-                _ => throw new NotSupportedException($"Opérateur {r.Operator} non supporté")
+                _ => throw new NotSupportedException($"Opérateur {r.Operator} ne fonctionne pas")
             };
 
             Expression CallString(string method)
             {
                 if (prop.Type != typeof(string)) throw new NotSupportedException($"Opérateur {op} uniquement sur string");
-                if (constExpr.Type != typeof(string)) throw new NotSupportedException("Valeur string attendue");
-                return Expression.Call(prop, typeof(string).GetMethod(method, new[] { typeof(string) })!, constExpr);
+                if (constExpr.Type != typeof(string)) throw new NotSupportedException("String attendu");
+                return Expression.Call(prop, typeof(string).GetMethod(method, [typeof(string)])!, constExpr);
             }
 
             Expression CallIn()
@@ -164,7 +164,7 @@ namespace SegmentBackend.Services
                 return (Expression.Constant(enumVal, targetType), nonNullable, false);
             }
 
-            // Types spéciaux
+            // Types spéciaux genre guid et autres
             if (nonNullable == typeof(Guid))
             {
                 var guid = value is Guid g ? g : Guid.Parse(value.ToString()!);

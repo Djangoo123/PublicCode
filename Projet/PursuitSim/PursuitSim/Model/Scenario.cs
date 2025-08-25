@@ -45,9 +45,8 @@ public static class Scenarios
     {
         var s = new Scenario { Name = "Plain + Hedges" };
 
-        // Cross hurdles (thin obstacles that cut the LoS)
         for (int y = 150; y <= 900; y += 150)
-        s.Obstacles.Add(new Rect(0, y - 1, 1000, 2));
+            s.Obstacles.Add(new Rect(0, y - 1, 1000, 2));
 
         s.AccessYs = Enumerable.Range(1, 9).Select(i => i * 100.0).ToList();
 
@@ -62,7 +61,6 @@ public static class Scenarios
     {
         var s = new Scenario { Name = "Urban Grid" };
 
-        // urban checkerboard: 50×50 blocks, 10 m streets
         for (int x = 0; x < 1000; x += 60)
             for (int y = 0; y < 1000; y += 60)
                 s.Obstacles.Add(new Rect(x + 5, y + 5, 50, 50));
@@ -80,12 +78,10 @@ public static class Scenarios
     {
         var s = new Scenario { Name = "Mixed: Cover then Clearing" };
 
-        // Dense cover for 600m
         for (int x = 0; x < 1000; x += 80)
             for (int y = 0; y < 600; y += 80)
                 s.Obstacles.Add(new Rect(x + 10, y + 10, 50, 50));
 
-        // Obstacles
         s.Obstacles.Add(new Rect(450, 620, 100, 20));
         s.Obstacles.Add(new Rect(300, 720, 120, 20));
 

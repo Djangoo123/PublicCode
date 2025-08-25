@@ -1,5 +1,4 @@
-
-using PursuitSim.Core;
+﻿using PursuitSim.Core;
 using PursuitSim.Engine;
 using PursuitSim.Model;
 
@@ -10,8 +9,9 @@ class Program
     static void Main(string[] args)
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
-        var scenario = (args.Length > 0 ? args[0] : "1").Trim();
-        Scenario s = scenario switch
+        var scenarioId = (args.Length > 0 ? args[0] : "1").Trim();
+
+        Scenario s = scenarioId switch
         {
             "1" => Scenarios.PlainWithHedges(),
             "2" => Scenarios.UrbanGrid(),
@@ -24,7 +24,15 @@ class Program
         Console.WriteLine("Args: 1=Plain+Hedges, 2=Urban Grid, 3=Mixed Clearing");
         Console.WriteLine();
 
-        var sim = new Simulation(s);
+        var outDir = "out";
+        if (File.Exists("appsettings.json"))
+        {
+            var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText("appsettings.json"));
+            if (json.RootElement.TryGetProperty("OutputDir", out var prop))
+                outDir = prop.GetString() ?? "out";
+        }
+        var sim = new Simulation(s, scenarioId, outDir);
+
         sim.Run();
     }
 }

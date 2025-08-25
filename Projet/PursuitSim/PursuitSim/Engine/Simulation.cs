@@ -1,4 +1,4 @@
-
+using System;
 using PursuitSim.Core;
 using PursuitSim.Model;
 
@@ -9,15 +9,27 @@ public sealed class Simulation
     readonly Scenario S;
     readonly Team Team;
     readonly Drone Drone;
+
     readonly double dt = 0.25; // seconds
     double t = 0;
 
-    public Simulation(Scenario s)
+    readonly string _scenarioId;
+    readonly string _outDir;
+    CsvExporter? _csv;
+    int _lastLoggedSecond = -1;
+
+    public Simulation(Scenario s, string scenarioId, string outDir = "out")
     {
         S = s;
+        _scenarioId = scenarioId;
+        _outDir = string.IsNullOrWhiteSpace(outDir) ? "out" : outDir;
+
         Team = new Team(s.Team, s.MainPath);
         Drone = new Drone(s.Drone);
         Drone.ResetForPatrol();
+
+        _csv = new CsvExporter(_outDir, S.Name, _scenarioId, DateTime.Now);
+
         LogHeader();
     }
 
@@ -29,21 +41,40 @@ public sealed class Simulation
     void Log(string evt = "")
     {
         Console.WriteLine($"{t,4:F0}\t{Team.State,-10}\t{Team.AliveCount}\t{Team.HeadY,6:F0}\t{Drone.State,-9}\t{Drone.Pos}\t{evt}");
+
+        if (!string.IsNullOrWhiteSpace(evt) && _csv is not null)
+        {
+            string type = evt;
+            string? note = null;
+            var idx = evt.IndexOf(':');
+            if (idx > 0)
+            {
+                type = evt[..idx].Trim();
+                note = evt[(idx + 1)..].Trim();
+            }
+            _csv.WriteEvent(t, S, Team, Drone, type, note);
+        }
     }
 
     public void Run()
     {
-        int lastLog = -1;
         while (t < 1200 && Team.State != TeamState.Win && Team.State != TeamState.Fail)
         {
             Step();
-            if ((int)Math.Floor(t) != lastLog)
+
+            var sec = (int)Math.Floor(t);
+            if (sec != _lastLoggedSecond)
             {
+                _csv?.WriteTick(t, S, Team, Drone);
                 Log();
-                lastLog = (int)Math.Floor(t);
+                _lastLoggedSecond = sec;
             }
         }
+
         Log(Team.State == TeamState.Win ? "WIN" : "END");
+        _csv?.WriteEvent(t, S, Team, Drone, Team.State == TeamState.Win ? "WIN" : "END");
+        _csv?.Close();
+        _csv = null;
     }
 
     void Step()
@@ -75,11 +106,13 @@ public sealed class Simulation
         {
             var head = Team.Runners.First(r => !r.KO);
             var accessY = Team.TargetAccessY;
+
             if (Math.Abs(head.Pos.Y - accessY) <= 2.0 || head.Pos.Y > accessY)
             {
                 Team.CurrentPath = Team.TargetAltPath;
                 head.S = 0;
                 head.Pos = Team.CurrentPath.GetPointAtDistance(0);
+
                 int aliveIndex = 0;
                 foreach (var r in Team.Runners.Where(r => !r.KO))
                 {
@@ -88,6 +121,8 @@ public sealed class Simulation
                     aliveIndex++;
                 }
                 Team.State = TeamState.Evasion;
+
+                Log("SWITCH: AltPath");
             }
         }
 
@@ -118,11 +153,13 @@ public sealed class Simulation
         {
             Team.TargetAltPath = S.AltPathA;
             Team.TargetAccessY = headY + 20;
+            Log("ALT: fallback access");
             return;
         }
         var access = candidates.First();
         Team.TargetAccessY = access;
         Team.TargetAltPath = (headY < S.MapSizeMeters * 0.5) ? S.AltPathA : S.AltPathB;
+        Log($"ALT: target accessY={access:0}");
     }
 
     void DroneAI()
@@ -181,6 +218,7 @@ public sealed class Simulation
         {
             Drone.State = DroneState.Patrol;
             Drone.Target = null;
+            Log("LOST");
             return;
         }
 
@@ -210,7 +248,7 @@ public sealed class Simulation
 
         if (kos >= 2)
         {
-            Team.State = TeamState.Fail; // double KO -> retraite -> échec
+            Team.State = TeamState.Fail; 
         }
         else if (kos == 1)
         {
@@ -233,7 +271,7 @@ public sealed class Simulation
         if (Drone.Cooldown <= 0)
         {
             Drone.ResetForPatrol();
-            Log("DRONE RESPAWN");
+            Log("RESPAWN");
         }
     }
 

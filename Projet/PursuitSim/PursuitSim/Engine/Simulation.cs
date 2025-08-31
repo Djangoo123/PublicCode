@@ -18,6 +18,8 @@ public sealed class Simulation
     CsvExporter? _csv;
     int _lastLoggedSecond = -1;
 
+    readonly Random rng = new Random();
+    double sprintTimer = 0;
     public Simulation(Scenario s, string scenarioId, string outDir = "out")
     {
         S = s;
@@ -98,6 +100,56 @@ public sealed class Simulation
         {
             ChooseAltPath();
             Team.State = TeamState.SwitchPath;
+        }
+
+        // --- Team reaction against drone ---
+        foreach (var r in Team.Runners.Where(r => !r.KO))
+        {
+            var dist = Vec2.Distance(Drone.Pos, r.Pos);
+
+            if (dist <= 100 && Team.State == TeamState.Stealth)
+            {
+                Log("ALERT: Drone spotted (<100m)");
+                Team.State = TeamState.Evasion;
+            }
+
+            if (dist <= 20)
+            {
+                bool droneFonse = Drone.State == DroneState.Track || Drone.State == DroneState.Attack;
+                if (droneFonse)
+                {
+                    if (rng.NextDouble() < 0.2)
+                    {
+                        Log("RETELIATE: Drone down !");
+                        Drone.State = DroneState.Destroyed;
+                        Drone.Cooldown = S.Drone.RespawnSeconds;
+                    }
+                    else
+                    {
+                        Log("RETELIATE: failed");
+                    }
+                }
+                else
+                {
+                    Team.P.RunSpeed = 5.56; // ~20 km/h
+                    Log("Run: sprint stated !");
+                }
+            }
+        }
+
+        if (Team.P.RunSpeed > 4.17)
+        {
+            if (sprintTimer <= 0)
+                sprintTimer = 10.0; // 10 seconds sprint
+            else
+            {
+                sprintTimer -= dt;
+                if (sprintTimer <= 0)
+                {
+                    Team.P.RunSpeed = 4.17; // bac to ~15 km/h
+                    Log("Sprint over, back to normal speed");
+                }
+            }
         }
 
         Team.Update(dt);

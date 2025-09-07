@@ -4,8 +4,8 @@ using PursuitSim.Core;
 namespace PursuitSim.Model;
 
 public enum TeamState { Stealth, SwitchPath, Evasion, ContinueWith2, Retreat, Win, Fail }
-public enum DroneState { Patrol, Track, Attack, Destroyed, Cooldown }
-
+public enum DroneState { Patrol, Track, Attack, Bombing, Destroyed, Cooldown }
+public enum DroneType { Hunter, Bomber }
 public sealed class Runner
 {
     public bool KO;
@@ -72,6 +72,10 @@ public sealed class Drone
     public Runner? Target;
     public double ReactTimer = 0;
 
+    public DroneType Type = DroneType.Hunter;
+    public double BombAltitude = 100.0;  // meters
+    public double BombTimer = 0.0;       // countdown until impact
+
     public Drone(DroneParams p) { P = p; Pos = new Vec2(50, 50); }
 
     public void ResetForPatrol()
@@ -84,5 +88,14 @@ public sealed class Drone
         Cooldown = 0;
         Target = null;
         ReactTimer = 0;
+
+        // Randomly choose type: 50% Hunter, 50% Bomber
+        if (new Random().NextDouble() < 0.5)
+            Type = DroneType.Hunter;
+        else
+            Type = DroneType.Bomber;
+
+        BombTimer = 0;
+
     }
 }

@@ -19,6 +19,17 @@ class Program
             _ => Scenarios.PlainWithHedges()
         };
 
+        Console.Write("How many soldier is on the team ? (default = 3) : ");
+        var soldiersInput = Console.ReadLine()?.Trim();
+        int soldierCount = 3;
+        if (!string.IsNullOrEmpty(soldiersInput) && int.TryParse(soldiersInput, out var n) && n > 0)
+            soldierCount = n;
+
+        s.Team.Count = soldierCount;
+
+        Console.WriteLine($"→ Team configured with {soldierCount} soldat(s).");
+        Console.WriteLine();
+
         Console.WriteLine("=== PursuitSim (.NET 8) ===");
         Console.WriteLine($"Scenario: {s.Name}");
         Console.WriteLine("Args: 1=Plain+Hedges, 2=Urban Grid, 3=Mixed Clearing");

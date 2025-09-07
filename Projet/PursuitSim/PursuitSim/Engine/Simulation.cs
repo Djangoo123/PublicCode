@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using PursuitSim.Core;
 using PursuitSim.Model;
 
@@ -118,7 +118,7 @@ public sealed class Simulation
                 bool droneFonse = Drone.State == DroneState.Track || Drone.State == DroneState.Attack;
                 if (droneFonse)
                 {
-                    if (rng.NextDouble() < 0.2)
+                    if (rng.NextDouble() < 0.1)
                     {
                         Log("RETELIATE: Drone down !");
                         Drone.State = DroneState.Destroyed;
@@ -223,6 +223,7 @@ public sealed class Simulation
             case DroneState.Attack: AttackStep(); break;
             case DroneState.Destroyed: DestroyedStep(); break;
             case DroneState.Cooldown: CooldownStep(); break;
+            case DroneState.Bombing: BombingStep(); break;
         }
     }
 
@@ -245,10 +246,56 @@ public sealed class Simulation
         {
             Drone.Target = targetRunner;
             Drone.ReactTimer = S.Drone.ReactLatency;
-            Drone.State = DroneState.Track;
+            Drone.Target = targetRunner;
+            Drone.ReactTimer = S.Drone.ReactLatency;
+
+            if (Drone.Type == DroneType.Hunter)
+                Drone.State = DroneState.Track;
+            else
+                Drone.State = DroneState.Bombing;
             Log("DETECTED");
         }
     }
+
+    void BombingStep()
+    {
+        // Follow the head of the team
+        var target = new Vec2(Team.Runners.First(r => !r.KO).Pos.X, Team.HeadY);
+        Drone.Pos = new Vec2(target.X, target.Y);
+
+        if (Drone.BombTimer <= 0)
+        {
+            // Drop a bomb
+            var tFall = Math.Sqrt(2 * Drone.BombAltitude / 9.81);
+            Drone.BombTimer = tFall;
+            Log($"BOMB DROPPED from {Drone.BombAltitude}m, impact in {tFall:F1}s");
+        }
+        else
+        {
+            Drone.BombTimer -= dt;
+            if (Drone.BombTimer <= 0)
+            {
+                // Impact: 50% chance to eliminate ~75% of the team
+                if (rng.NextDouble() < 0.5)
+                {
+                    int toKO = (int)Math.Ceiling(Team.Runners.Count(r => !r.KO) * 0.75);
+                    foreach (var r in Team.Runners.Where(r => !r.KO).Take(toKO))
+                        r.KO = true;
+
+                    Log($"EXPLOSION: {toKO} soldiers KO (≈75% of team)");
+                }
+                else
+                {
+                    Log("EXPLOSION: minor effect, team survives");
+                }
+
+                // Bomber is destroyed after attack
+                Drone.State = DroneState.Destroyed;
+                Drone.Cooldown = S.Drone.RespawnSeconds;
+            }
+        }
+    }
+
 
     void TrackStep()
     {

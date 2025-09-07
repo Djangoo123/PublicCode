@@ -15,11 +15,14 @@ public static class BatchRunner
 
             results.Add(new RunResult
             {
+                RunIndex = i + 1,
                 Win = sim.Team.State == TeamState.Win,
                 Survivors = sim.Team.AliveCount,
-                Duration = sim.ElapsedTime
+                Duration = sim.ElapsedTime,
+                FailReason = sim.Team.State == TeamState.Fail ? sim.FailReason : string.Empty,
             });
         }
+
         return results;
     }
 }

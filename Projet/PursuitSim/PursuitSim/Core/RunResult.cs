@@ -6,4 +6,5 @@ public class RunResult
     public int Survivors { get; set; }
     public double Duration { get; set; }
     public string FailReason { get; set; } = string.Empty;
+    public int RunIndex { get; set; }    
 }

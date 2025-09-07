@@ -14,12 +14,14 @@ class Program
         {
             var results = BatchRunner.Run(scenario, scenarioId, outDir, runs);
             ResultPrinter.PrintBatch(results, scenario);
+            ResultPrinter.ExportBatchCsv(results, scenario, outDir);
         }
         else
         {
             var sim = new Simulation(scenario, scenarioId, outDir);
             sim.Run();
             ResultPrinter.PrintSingle(sim, scenario);
+            ResultPrinter.ExportSingleCsv(sim, scenario, outDir);
         }
 
         Console.WriteLine("\nPress any key to exit...");

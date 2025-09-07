@@ -7,7 +7,7 @@ namespace PursuitSim.Engine;
 public sealed class Simulation
 {
     readonly Scenario S;
-    readonly Team Team;
+    readonly Team team;
     readonly Drone Drone;
 
     readonly double dt = 0.25; // seconds
@@ -18,15 +18,20 @@ public sealed class Simulation
     CsvExporter? _csv;
     int _lastLoggedSecond = -1;
 
-    readonly Random rng = new Random();
+    readonly Random rng = new();
     double sprintTimer = 0;
+
+    public Team Team => team;
+    public double ElapsedTime => t;
+    public string FailReason { get; private set; } = string.Empty;
+
     public Simulation(Scenario s, string scenarioId, string outDir = "out")
     {
         S = s;
         _scenarioId = scenarioId;
         _outDir = string.IsNullOrWhiteSpace(outDir) ? "out" : outDir;
 
-        Team = new Team(s.Team, s.MainPath);
+        team = new Team(s.Team, s.MainPath);
         Drone = new Drone(s.Drone);
         Drone.ResetForPatrol();
 
@@ -259,7 +264,7 @@ public sealed class Simulation
 
     void BombingStep()
     {
-        // Follow the head of the team
+        // Follow the head of the team (always above the lead runner)
         var target = new Vec2(Team.Runners.First(r => !r.KO).Pos.X, Team.HeadY);
         Drone.Pos = new Vec2(target.X, target.Y);
 
@@ -268,33 +273,46 @@ public sealed class Simulation
             // Drop a bomb
             var tFall = Math.Sqrt(2 * Drone.BombAltitude / 9.81);
             Drone.BombTimer = tFall;
-            Log($"BOMB DROPPED from {Drone.BombAltitude}m, impact in {tFall:F1}s");
+            Log($"BOMB_DROPPED: altitude={Drone.BombAltitude}m fall={tFall:F1}s");
         }
         else
         {
             Drone.BombTimer -= dt;
             if (Drone.BombTimer <= 0)
             {
-                // Impact: 50% chance to eliminate ~75% of the team
+                // Impact
                 if (rng.NextDouble() < 0.5)
                 {
                     int toKO = (int)Math.Ceiling(Team.Runners.Count(r => !r.KO) * 0.75);
                     foreach (var r in Team.Runners.Where(r => !r.KO).Take(toKO))
                         r.KO = true;
 
-                    Log($"EXPLOSION: {toKO} soldiers KO (≈75% of team)");
+                    Log($"EXPLOSION: {toKO} soldiers KO (≈75%)");
+
+                    if (Team.AliveCount == 0)
+                    {
+                        Team.State = TeamState.Fail;
+                        FailReason = "bomb eliminated entire team";
+                    }
+                    else if (Team.AliveCount <= S.Team.Count / 4)
+                    {
+                        // optional: consider this a fail if only a quarter survives
+                        Team.State = TeamState.Fail;
+                        FailReason = "bomb decimated team";
+                    }
                 }
                 else
                 {
-                    Log("EXPLOSION: minor effect, team survives");
+                    Log("EXPLOSION: minor effect (team survives)");
                 }
 
-                // Bomber is destroyed after attack
+                // Bomber is destroyed after the attack
                 Drone.State = DroneState.Destroyed;
                 Drone.Cooldown = S.Drone.RespawnSeconds;
             }
         }
     }
+
 
 
     void TrackStep()
@@ -347,12 +365,17 @@ public sealed class Simulation
 
         if (kos >= 2)
         {
-            Team.State = TeamState.Fail; 
+            FailReason = "double KO in one attack";
+            Team.State = TeamState.Fail;
         }
         else if (kos == 1)
         {
             Team.State = TeamState.ContinueWith2;
-            if (Team.AliveCount == 0) Team.State = TeamState.Fail;
+            if (Team.AliveCount == 0)
+            {
+                FailReason = "all soldiers eliminated";
+                Team.State = TeamState.Fail;
+            }
         }
 
         Drone.State = DroneState.Destroyed;

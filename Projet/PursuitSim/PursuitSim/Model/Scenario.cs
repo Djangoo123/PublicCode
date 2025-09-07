@@ -7,7 +7,7 @@ namespace PursuitSim.Model;
 
 public sealed class Scenario
 {
-    public string Name { get; set; } = "";
+    public string Name { get; set; } = string.Empty;
     public double MapSizeMeters { get; set; } = 1000.0;
 
     public PolyPath MainPath { get; set; } = new PolyPath(new[] { new Vec2(500, 0), new Vec2(500, 1000) });

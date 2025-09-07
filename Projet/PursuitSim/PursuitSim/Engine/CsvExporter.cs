@@ -15,9 +15,9 @@ public sealed class CsvExporter : IDisposable
     readonly DateTime _startLocal;
     readonly CultureInfo _ci = CultureInfo.InvariantCulture;
 
-    string _dir = "";
-    string _tmpPath = "";
-    string _finalPath = "";
+    string _dir = string.Empty;
+    string _tmpPath = string.Empty;
+    string _finalPath = string.Empty;
     StreamWriter? _sw;
     bool _headerWritten = false;
     int _runnerCols = 0;
@@ -101,8 +101,8 @@ public sealed class CsvExporter : IDisposable
             drone.State.ToString(),
             drone.Pos.X.ToString("0.###", _ci),
             drone.Pos.Y.ToString("0.###", _ci),
-            "", // event_type
-            ""  // event_note
+            string.Empty, // event_type
+            string.Empty  // event_note
         }.ToList();
 
         // runners
@@ -133,7 +133,7 @@ public sealed class CsvExporter : IDisposable
             drone.Pos.X.ToString("0.###", _ci),
             drone.Pos.Y.ToString("0.###", _ci),
             eventType,
-            note ?? ""
+            note ?? string.Empty
         }.ToList();
 
         for (int i = 0; i < _runnerCols; i++)

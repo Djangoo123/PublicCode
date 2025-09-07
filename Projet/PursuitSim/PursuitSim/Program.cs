@@ -1,6 +1,5 @@
-﻿using PursuitSim.Core;
-using PursuitSim.Engine;
-using PursuitSim.Model;
+﻿using PursuitSim.Engine;
+using PursuitSim.UI;
 
 namespace PursuitSim;
 
@@ -8,42 +7,22 @@ class Program
 {
     static void Main(string[] args)
     {
-        Console.OutputEncoding = System.Text.Encoding.UTF8;
-        var scenarioId = (args.Length > 0 ? args[0] : "1").Trim();
+        var (scenario, scenarioId, soldiers, batchMode, runs) = Menu.AskUser();
+        var outDir = ConfigLoader.GetOutputDir("appsettings.json");
 
-        Scenario s = scenarioId switch
+        if (batchMode)
         {
-            "1" => Scenarios.PlainWithHedges(),
-            "2" => Scenarios.UrbanGrid(),
-            "3" => Scenarios.MixedClearingFinal(),
-            _ => Scenarios.PlainWithHedges()
-        };
-
-        Console.Write("How many soldier is on the team ? (default = 3) : ");
-        var soldiersInput = Console.ReadLine()?.Trim();
-        int soldierCount = 3;
-        if (!string.IsNullOrEmpty(soldiersInput) && int.TryParse(soldiersInput, out var n) && n > 0)
-            soldierCount = n;
-
-        s.Team.Count = soldierCount;
-
-        Console.WriteLine($"→ Team configured with {soldierCount} soldat(s).");
-        Console.WriteLine();
-
-        Console.WriteLine("=== PursuitSim (.NET 8) ===");
-        Console.WriteLine($"Scenario: {s.Name}");
-        Console.WriteLine("Args: 1=Plain+Hedges, 2=Urban Grid, 3=Mixed Clearing");
-        Console.WriteLine();
-
-        var outDir = "out";
-        if (File.Exists("appsettings.json"))
-        {
-            var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText("appsettings.json"));
-            if (json.RootElement.TryGetProperty("OutputDir", out var prop))
-                outDir = prop.GetString() ?? "out";
+            var results = BatchRunner.Run(scenario, scenarioId, outDir, runs);
+            ResultPrinter.PrintBatch(results, scenario);
         }
-        var sim = new Simulation(s, scenarioId, outDir);
+        else
+        {
+            var sim = new Simulation(scenario, scenarioId, outDir);
+            sim.Run();
+            ResultPrinter.PrintSingle(sim, scenario);
+        }
 
-        sim.Run();
+        Console.WriteLine("\nPress any key to exit...");
+        Console.ReadKey(true);
     }
 }

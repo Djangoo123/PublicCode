@@ -30,3 +30,9 @@
 /Projet/Braze/SegmentPOC/src/SegmentBackend/Properties
 /Projet/Braze/SegmentPOC/tests/SegmentBackend.Tests/bin/Debug/net8.0
 /Projet/Braze/SegmentPOC/tests/SegmentBackend.Tests/obj
+/MSK_POC/.vs
+/MSK_POC/NotificationService/obj
+/MSK_POC/SegmentBackend/obj
+/Projet/Braze/MSK_POC/.vs
+/Projet/Braze/MSK_POC/NotificationService/obj
+/Projet/Braze/MSK_POC/SegmentBackend/obj

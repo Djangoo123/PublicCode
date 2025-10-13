@@ -1,0 +1,20 @@
+[
+    {
+      "name": "loki",
+      "image": "grafana/loki:2.9.0",
+      "essential": true,
+      "portMappings": [
+        { "containerPort": 3100, "hostPort": 3100, "protocol": "tcp" }
+      ],
+      "command": ["-config.file=/etc/loki/local-config.yaml"],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/loki",
+          "awslogs-region": "us-west-2",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+  

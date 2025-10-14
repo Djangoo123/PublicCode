@@ -114,6 +114,18 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# ---------------- IAM Role pour la task Loki ----------------
+resource "aws_iam_role" "ecs_task_loki" {
+  name               = "ecsTaskRole-loki"
+  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
+}
+
+# Autorise la task à lire/écrire sur EFS
+resource "aws_iam_role_policy_attachment" "ecs_task_loki_efs" {
+  role       = aws_iam_role.ecs_task_loki.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientReadWriteAccess"
+}
+
 
 
 data "aws_iam_policy_document" "ecs_assume_role" {
@@ -144,6 +156,7 @@ resource "aws_ecs_task_definition" "loki" {
   cpu                      = 512
   memory                   = 1024
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
+  task_role_arn            = aws_iam_role.ecs_task_loki.arn
 
   container_definitions = jsonencode([
     {
@@ -175,8 +188,8 @@ resource "aws_ecs_task_definition" "loki" {
       file_system_id     = aws_efs_file_system.loki_data.id
       transit_encryption = "ENABLED"
       authorization_config {
-        access_point_id = null
-        iam             = "DISABLED"
+        access_point_id = aws_efs_access_point.loki_ap.id
+        iam             = "ENABLED"
       }
     }
   }
@@ -228,4 +241,25 @@ resource "aws_efs_mount_target" "loki_mount" {
   file_system_id  = aws_efs_file_system.loki_data.id
   subnet_id       = aws_subnet.public.id
   security_groups = [aws_security_group.ecs_sg.id]
+}
+
+# Crée un Access Point pour Loki
+resource "aws_efs_access_point" "loki_ap" {
+  file_system_id = aws_efs_file_system.loki_data.id
+
+  posix_user {
+    uid = 10001
+    gid = 10001
+  }
+
+  root_directory {
+    path = "/loki-data"
+    creation_info {
+      owner_uid   = 10001
+      owner_gid   = 10001
+      permissions = "0755"
+    }
+  }
+
+  tags = { Name = "loki-access-point" }
 }

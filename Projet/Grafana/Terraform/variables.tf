@@ -13,3 +13,10 @@ variable "allowed_ip" {
   type        = string
   default     = "0.0.0.0/0"
 }
+
+
+variable "az_secondary" {
+  description = "Deuxième zone de disponibilité"
+  type        = string
+  default     = "us-west-2b"
+}

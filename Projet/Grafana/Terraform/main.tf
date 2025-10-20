@@ -13,6 +13,11 @@ provider "aws" {
   region = var.region
 }
 
+# ---------------- Zones de disponibilité dynamiques ----------------
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 # ---------------- VPC + réseau ----------------
 resource "aws_vpc" "this" {
   cidr_block           = "10.1.0.0/16"
@@ -25,31 +30,51 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.this.id
 }
 
+# Subnet 1 - AZ[0]
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.this.id
   cidr_block              = "10.1.1.0/24"
   map_public_ip_on_launch = true
-  availability_zone       = var.az
-  tags                    = { Name = "grafana-ecs-subnet" }
+  availability_zone_id    = data.aws_availability_zones.available.zone_ids[0]
+  tags                    = { Name = "grafana-ecs-subnet-a" }
 }
 
+# Subnet 2 - AZ[1]
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.this.id
+  cidr_block              = "10.1.2.0/24"
+  map_public_ip_on_launch = true
+  availability_zone_id    = data.aws_availability_zones.available.zone_ids[1]
+  tags                    = { Name = "grafana-ecs-subnet-b" }
+}
+
+# Table de routage publique (vers Internet Gateway)
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.this.id
+
   route {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
+
+  tags = { Name = "grafana-public-rt" }
 }
 
-resource "aws_route_table_association" "public" {
+# Associations explicites pour les subnets publics
+resource "aws_route_table_association" "public_a" {
   subnet_id      = aws_subnet.public.id
   route_table_id = aws_route_table.public.id
 }
 
-# ---------------- Security Group ----------------
+resource "aws_route_table_association" "public_b" {
+  subnet_id      = aws_subnet.public_b.id
+  route_table_id = aws_route_table.public.id
+}
+
+# ---------------- Security Group principal ----------------
 resource "aws_security_group" "ecs_sg" {
   name        = "grafana-ecs-sg"
-  description = "Allow Grafana and internal ECS comms"
+  description = "Allow Grafana, Loki and ECS comms"
   vpc_id      = aws_vpc.this.id
 
   ingress {
@@ -75,7 +100,6 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["10.1.0.0/16"]
     description = "Allow NFS traffic for EFS"
   }
-
 
   egress {
     from_port   = 0
@@ -103,7 +127,17 @@ resource "aws_cloudwatch_log_group" "loki" {
   retention_in_days = 7
 }
 
-# ---------------- IAM Role ----------------
+# ---------------- IAM Roles ----------------
+data "aws_iam_policy_document" "ecs_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "ecs_task_execution" {
   name               = "ecsTaskExecutionRole-grafana"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
@@ -114,28 +148,14 @@ resource "aws_iam_role_policy_attachment" "ecs_execution_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-# ---------------- IAM Role pour la task Loki ----------------
 resource "aws_iam_role" "ecs_task_loki" {
   name               = "ecsTaskRole-loki"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role.json
 }
 
-# Autorise la task à lire/écrire sur EFS
 resource "aws_iam_role_policy_attachment" "ecs_task_loki_efs" {
   role       = aws_iam_role.ecs_task_loki.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonElasticFileSystemClientReadWriteAccess"
-}
-
-
-
-data "aws_iam_policy_document" "ecs_assume_role" {
-  statement {
-    actions = ["sts:AssumeRole"]
-    principals {
-      type        = "Service"
-      identifiers = ["ecs-tasks.amazonaws.com"]
-    }
-  }
 }
 
 # ---------------- Task Definitions ----------------
@@ -181,7 +201,6 @@ resource "aws_ecs_task_definition" "loki" {
     }
   ])
 
-  # volume EFS
   volume {
     name = "loki-data"
     efs_volume_configuration {
@@ -195,39 +214,6 @@ resource "aws_ecs_task_definition" "loki" {
   }
 }
 
-# ---------------- ECS Services ----------------
-resource "aws_ecs_service" "loki" {
-  name            = "loki-service"
-  cluster         = aws_ecs_cluster.this.id
-  task_definition = aws_ecs_task_definition.loki.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets          = [aws_subnet.public.id]
-    assign_public_ip = true
-    security_groups  = [aws_security_group.ecs_sg.id]
-  }
-
-  depends_on = [aws_ecs_cluster.this]
-}
-
-resource "aws_ecs_service" "grafana" {
-  name            = "grafana-service"
-  cluster         = aws_ecs_cluster.this.id
-  task_definition = aws_ecs_task_definition.grafana.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-
-  network_configuration {
-    subnets          = [aws_subnet.public.id]
-    assign_public_ip = true
-    security_groups  = [aws_security_group.ecs_sg.id]
-  }
-
-  depends_on = [aws_ecs_service.loki]
-}
-
 # ---------------- EFS pour Loki ----------------
 resource "aws_efs_file_system" "loki_data" {
   creation_token   = "loki-data"
@@ -236,14 +222,12 @@ resource "aws_efs_file_system" "loki_data" {
   tags             = { Name = "loki-data" }
 }
 
-# Point de montage EFS dans le VPC
 resource "aws_efs_mount_target" "loki_mount" {
   file_system_id  = aws_efs_file_system.loki_data.id
   subnet_id       = aws_subnet.public.id
   security_groups = [aws_security_group.ecs_sg.id]
 }
 
-# Crée un Access Point pour Loki
 resource "aws_efs_access_point" "loki_ap" {
   file_system_id = aws_efs_file_system.loki_data.id
 
@@ -262,4 +246,109 @@ resource "aws_efs_access_point" "loki_ap" {
   }
 
   tags = { Name = "loki-access-point" }
+}
+
+# ---------------- Application Load Balancer (Loki) ----------------
+resource "aws_security_group" "loki_alb_sg" {
+  name        = "loki-alb-sg"
+  description = "Allow public access to Loki via Load Balancer"
+  vpc_id      = aws_vpc.this.id
+
+  ingress {
+    from_port   = 3100
+    to_port     = 3100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "loki-alb-sg" }
+}
+
+resource "aws_lb" "loki_alb" {
+  name               = "loki-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.loki_alb_sg.id]
+  subnets            = [aws_subnet.public.id, aws_subnet.public_b.id]
+  tags               = { Name = "loki-alb" }
+}
+
+resource "aws_lb_target_group" "loki_tg" {
+  name        = "loki-tg"
+  port        = 3100
+  protocol    = "HTTP"
+  vpc_id      = aws_vpc.this.id
+  target_type = "ip"
+
+  health_check {
+    path                = "/ready"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = { Name = "loki-tg" }
+}
+
+resource "aws_lb_listener" "loki_listener" {
+  load_balancer_arn = aws_lb.loki_alb.arn
+  port              = 3100
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.loki_tg.arn
+  }
+}
+
+# ---------------- ECS Services ----------------
+resource "aws_ecs_service" "loki" {
+  name            = "loki-service"
+  cluster         = aws_ecs_cluster.this.id
+  task_definition = aws_ecs_task_definition.loki.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets          = [aws_subnet.public.id]
+    assign_public_ip = true
+    security_groups  = [aws_security_group.ecs_sg.id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.loki_tg.arn
+    container_name   = "loki"
+    container_port   = 3100
+  }
+
+  depends_on = [
+    aws_lb_listener.loki_listener
+  ]
+}
+
+resource "aws_ecs_service" "grafana" {
+  name            = "grafana-service"
+  cluster         = aws_ecs_cluster.this.id
+  task_definition = aws_ecs_task_definition.grafana.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  network_configuration {
+    subnets = [
+      aws_subnet.public.id,
+      aws_subnet.public_b.id
+    ]
+    assign_public_ip = true
+    security_groups  = [aws_security_group.ecs_sg.id]
+  }
+
+  depends_on = [aws_ecs_service.loki]
 }

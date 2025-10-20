@@ -33,3 +33,10 @@ output "ecs_task_execution_role" {
   description = "Nom du rôle IAM utilisé pour exécuter les tâches ECS"
   value       = aws_iam_role.ecs_task_execution.name
 }
+
+
+# ---------------- Output loki url ----------------
+output "loki_alb_dns" {
+  description = "URL publique du Loki Load Balancer"
+  value       = aws_lb.loki_alb.dns_name
+}

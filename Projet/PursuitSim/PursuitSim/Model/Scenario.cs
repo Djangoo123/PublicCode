@@ -18,6 +18,7 @@ public sealed class Scenario
 
     public DroneParams Drone { get; set; } = new();
     public TeamParams Team { get; set; } = new();
+    public List<Mine> Mines { get; set; } = new();
 }
 
 public sealed class DroneParams
@@ -50,9 +51,17 @@ public static class Scenarios
 
         s.AccessYs = Enumerable.Range(1, 9).Select(i => i * 100.0).ToList();
 
-        s.MainPath = new PolyPath(new[] { new Vec2(500, 0), new Vec2(500, 1000) });
-        s.AltPathA = new PolyPath(new[] { new Vec2(500, 250), new Vec2(300, 250), new Vec2(300, 700), new Vec2(500, 700) });
-        s.AltPathB = new PolyPath(new[] { new Vec2(500, 400), new Vec2(700, 400), new Vec2(700, 850), new Vec2(500, 850) });
+        s.MainPath = new PolyPath([new Vec2(500, 0), new Vec2(500, 1000)]);
+        s.AltPathA = new PolyPath([new Vec2(500, 250), new Vec2(300, 250), new Vec2(300, 700), new Vec2(500, 700)]);
+        s.AltPathB = new PolyPath([new Vec2(500, 400), new Vec2(700, 400), new Vec2(700, 850), new Vec2(500, 850)]);
+
+        s.Mines =
+        [
+            new Mine { Pos = new Vec2(300, 200) },
+            new Mine { Pos = new Vec2(600, 450) },
+            new Mine { Pos = new Vec2(800, 700) }
+        ];
+
 
         return s;
     }
@@ -67,9 +76,17 @@ public static class Scenarios
 
         s.AccessYs = Enumerable.Range(1, 9).Select(i => i * 100.0).ToList();
 
-        s.MainPath = new PolyPath(new[] { new Vec2(500, 0), new Vec2(500, 1000) });
-        s.AltPathA = new PolyPath(new[] { new Vec2(500, 300), new Vec2(420, 300), new Vec2(420, 700), new Vec2(500, 700) });
-        s.AltPathB = new PolyPath(new[] { new Vec2(500, 450), new Vec2(580, 450), new Vec2(580, 850), new Vec2(500, 850) });
+        s.MainPath = new PolyPath([new Vec2(500, 0), new Vec2(500, 1000)]);
+        s.AltPathA = new PolyPath([new Vec2(500, 300), new Vec2(420, 300), new Vec2(420, 700), new Vec2(500, 700)]);
+        s.AltPathB = new PolyPath([new Vec2(500, 450), new Vec2(580, 450), new Vec2(580, 850), new Vec2(500, 850)]);
+
+        s.Mines =
+        [
+            new Mine { Pos = new Vec2(300, 200) },
+            new Mine { Pos = new Vec2(600, 450) },
+            new Mine { Pos = new Vec2(800, 700) }
+        ];
+
 
         return s;
     }
@@ -85,11 +102,19 @@ public static class Scenarios
         s.Obstacles.Add(new Rect(450, 620, 100, 20));
         s.Obstacles.Add(new Rect(300, 720, 120, 20));
 
-        s.AccessYs = new List<double> { 200, 300, 400, 500, 650, 700, 800, 900 };
+        s.AccessYs = [200, 300, 400, 500, 650, 700, 800, 900];
 
-        s.MainPath = new PolyPath(new[] { new Vec2(500, 0), new Vec2(500, 1000) });
-        s.AltPathA = new PolyPath(new[] { new Vec2(500, 250), new Vec2(320, 250), new Vec2(320, 700), new Vec2(500, 700) });
-        s.AltPathB = new PolyPath(new[] { new Vec2(500, 400), new Vec2(680, 400), new Vec2(680, 850), new Vec2(500, 850) });
+        s.MainPath = new PolyPath([new Vec2(500, 0), new Vec2(500, 1000)]);
+        s.AltPathA = new PolyPath([new Vec2(500, 250), new Vec2(320, 250), new Vec2(320, 700), new Vec2(500, 700)]);
+        s.AltPathB = new PolyPath([new Vec2(500, 400), new Vec2(680, 400), new Vec2(680, 850), new Vec2(500, 850)]);
+
+        s.Mines =
+        [
+            new Mine { Pos = new Vec2(300, 200) },
+            new Mine { Pos = new Vec2(600, 450) },
+            new Mine { Pos = new Vec2(800, 700) }
+        ];
+
 
         return s;
     }

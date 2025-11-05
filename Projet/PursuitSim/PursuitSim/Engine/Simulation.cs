@@ -159,6 +159,27 @@ public sealed class Simulation
 
         Team.Update(dt);
 
+        // --- Mine detection ---
+        foreach (var r in Team.Runners.Where(r => !r.KO))
+        {
+            foreach (var mine in S.Mines.Where(m => !m.Triggered))
+            {
+                double dist = Vec2.Distance(r.Pos, mine.Pos);
+                if (dist < 2.0) // explosion radius ~2m
+                {
+                    r.KO = true;
+                    mine.Triggered = true;
+                    Log($"MINE_TRIGGERED: runner at ({r.Pos.X:F1},{r.Pos.Y:F1})");
+
+                    if (Team.AliveCount == 0)
+                    {
+                        Team.State = TeamState.Fail;
+                        FailReason = "all soldiers eliminated (mine explosion)";
+                    }
+                }
+            }
+        }
+
         if (Team.State == TeamState.SwitchPath && Team.TargetAltPath != null)
         {
             var head = Team.Runners.First(r => !r.KO);

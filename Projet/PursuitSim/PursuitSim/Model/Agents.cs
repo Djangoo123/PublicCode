@@ -22,6 +22,11 @@ public sealed class Team
     public PolyPath? TargetAltPath;
     public double TargetAccessY = -1;
     public double LastCheckpointY = 0;
+    public string Name = string.Empty;
+    public int Count = 0;
+    public double StartX = 300;
+    public double StartY = 110;
+    public bool IsDefender = false;
 
     public Team(TeamParams p, PolyPath startPath)
     {

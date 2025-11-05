@@ -1,4 +1,7 @@
-﻿using PursuitSim.Model;
+﻿using PursuitSim.Core;
+using PursuitSim.Engine;
+using PursuitSim.Model;
+using PursuitSim.Model.Warfare;
 
 namespace PursuitSim.UI;
 
@@ -13,18 +16,29 @@ public static class Menu
         Console.WriteLine("  1) Plain + Hedges");
         Console.WriteLine("  2) Urban Grid");
         Console.WriteLine("  3) Mixed Clearing");
-        Console.Write("Your choice [1-3] (default = 1): ");
+        Console.WriteLine("  4) Urban Siege (Battle mode)");
+        Console.Write("Your choice [1-4] (default = 1): ");
+
         var scenarioInput = Console.ReadLine()?.Trim();
         if (string.IsNullOrEmpty(scenarioInput)) scenarioInput = "1";
 
-        Scenario s;
-        string scenarioId = scenarioInput;
-        switch (scenarioInput)
+        if (scenarioInput == "4")
         {
-            case "2": s = Scenarios.UrbanGrid(); break;
-            case "3": s = Scenarios.MixedClearingFinal(); break;
-            default: s = Scenarios.PlainWithHedges(); scenarioId = "1"; break;
+            var battleScenario = UrbanSiegeFactory.Create();
+            var engine = new UrbanSiegeEngine(battleScenario);
+            engine.Run();
+
+            return (null!, "4", 0, false, 0);
         }
+
+        Scenario s = scenarioInput switch
+        {
+            "2" => Scenarios.UrbanGrid(),
+            "3" => Scenarios.MixedClearingFinal(),
+            _ => Scenarios.PlainWithHedges()
+        };
+
+        string scenarioId = scenarioInput;
 
         // --- Team size ---
         Console.Write("How many soldiers in the team? (default = 3): ");
@@ -32,6 +46,7 @@ public static class Menu
         int soldierCount = 3;
         if (!string.IsNullOrEmpty(soldiersInput) && int.TryParse(soldiersInput, out var n) && n > 0)
             soldierCount = n;
+
         s.Team.Count = soldierCount;
 
         Console.WriteLine($"→ Team configured with {soldierCount} soldier(s).");

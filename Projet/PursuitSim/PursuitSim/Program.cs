@@ -10,6 +10,15 @@ class Program
         var (scenario, scenarioId, soldiers, batchMode, runs) = Menu.AskUser();
         var outDir = ConfigLoader.GetOutputDir("appsettings.json");
 
+        if (scenarioId == "4" || scenario == null)
+        {
+            Console.WriteLine("\nUrban Siege simulation completed or no scenario selected.");
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey(true);
+            return;
+        }
+
+        // === Mode batch ===
         if (batchMode)
         {
             var results = BatchRunner.Run(scenario, scenarioId, outDir, runs);
@@ -18,6 +27,7 @@ class Program
         }
         else
         {
+            // === Mode single ===
             var sim = new Simulation(scenario, scenarioId, outDir);
             sim.Run();
             ResultPrinter.PrintSingle(sim, scenario);
@@ -28,3 +38,4 @@ class Program
         Console.ReadKey(true);
     }
 }
+

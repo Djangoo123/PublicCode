@@ -1,0 +1,92 @@
+<Window x:Class="InhalerDashboard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
+        mc:Ignorable="d"
+        Title="Inhaler Dashboard" Height="650" Width="980" MinHeight="600" MinWidth="900">
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- HEADER -->
+        <Border Grid.Row="0" Padding="12" CornerRadius="8"
+                Background="#f2f6ff" BorderBrush="#d7e3ff" BorderThickness="1">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+
+                <TextBlock Text="💊 Inhalateur connecté"
+                           FontSize="20" FontWeight="Bold" Margin="0,0,16,0"/>
+
+                <Ellipse Width="12" Height="12" VerticalAlignment="Center" Margin="0,0,4,0">
+                    <Ellipse.Fill>
+                        <SolidColorBrush Color="{Binding ConnectionColor}"/>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <TextBlock Text="{Binding ConnectionStatus}" FontWeight="SemiBold"
+                           VerticalAlignment="Center" Margin="0,0,16,0"/>
+
+                <TextBlock Text="Batterie:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <ProgressBar Width="140" Height="14" Minimum="0" Maximum="100"
+                             Value="{Binding BatteryLevel}" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding BatteryLevel, StringFormat={} {0:F0}%}"
+                           VerticalAlignment="Center" Margin="6,0,16,0"/>
+
+                <TextBlock Text="Doses restantes:" VerticalAlignment="Center" Margin="8,0,4,0"/>
+                <TextBlock Text="{Binding DosesRemaining}" FontWeight="Bold" VerticalAlignment="Center"/>
+
+            </StackPanel>
+        </Border>
+
+        <!-- CONTROLS -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,12">
+            <Button Content="Démarrer" Command="{Binding StartCommand}" Padding="10,6"/>
+            <Button Content="Arrêter" Command="{Binding StopCommand}" Padding="10,6" Margin="8,0,0,0"/>
+            <Button Content="Simuler une inhalation" Command="{Binding InhaleCommand}"
+                    Padding="10,6" Margin="12,0,0,0"/>
+            <Button Content="Réinitialiser" Command="{Binding ResetCommand}"
+                    Padding="10,6" Margin="8,0,0,0"/>
+            <TextBlock Text="{Binding StatusMessage}" Margin="12,0,0,0" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- CHART + LOG -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Graphique -->
+            <GroupBox Header="Débit (L/min)" Margin="0,0,8,0">
+                <Grid>
+                    <!--<lvc:CartesianChart Series="{Binding FlowSeries}" />-->
+                </Grid>
+            </GroupBox>
+
+            <!-- Tableau des lectures -->
+            <GroupBox Header="Journal des lectures" Grid.Column="1">
+                <DataGrid ItemsSource="{Binding Readings}" AutoGenerateColumns="False" IsReadOnly="True">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Horodatage" Binding="{Binding Timestamp}" Width="*" />
+                        <DataGridTextColumn Header="Débit (L/min)" Binding="{Binding FlowRate}" Width="*" />
+                        <DataGridTextColumn Header="Doses" Binding="{Binding DoseCount}" Width="*" />
+                        <DataGridTextColumn Header="Batterie (%)" Binding="{Binding BatteryLevel}" Width="*" />
+                        <DataGridTextColumn Header="Statut" Binding="{Binding ConnectionStatus}" Width="*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </GroupBox>
+        </Grid>
+
+        <!-- FOOTER -->
+        <TextBlock Grid.Row="3" Text="{Binding Footer}"
+                   HorizontalAlignment="Right" Foreground="Gray" />
+    </Grid>
+</Window>

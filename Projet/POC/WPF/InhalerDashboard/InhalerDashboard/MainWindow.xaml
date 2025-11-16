@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
         mc:Ignorable="d"
-        Title="Inhaler Dashboard" Height="650" Width="980" MinHeight="600" MinWidth="900">
+        Title="Inhaler Dashboard" Height="650" Width="1050" MinHeight="600" MinWidth="1000">
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
@@ -46,7 +46,7 @@
             </StackPanel>
         </Border>
 
-        <!-- CONTROLS -->
+        <!-- COMMANDES -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,12,0,12">
             <Button Content="Démarrer" Command="{Binding StartCommand}" Padding="10,6"/>
             <Button Content="Arrêter" Command="{Binding StopCommand}" Padding="10,6" Margin="8,0,0,0"/>
@@ -57,35 +57,71 @@
             <TextBlock Text="{Binding StatusMessage}" Margin="12,0,0,0" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <!-- CHART + LOG -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Graphique -->
-            <GroupBox Header="Débit (L/min)" Margin="0,0,8,0">
-                <Grid>
-                    <!--<lvc:CartesianChart Series="{Binding FlowSeries}" />-->
-                </Grid>
-            </GroupBox>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="2*"/>
+                    <RowDefinition Height="3*"/>
+                </Grid.RowDefinitions>
 
-            <!-- Tableau des lectures -->
-            <GroupBox Header="Journal des lectures" Grid.Column="1">
-                <DataGrid ItemsSource="{Binding Readings}" AutoGenerateColumns="False" IsReadOnly="True">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="Horodatage" Binding="{Binding Timestamp}" Width="*" />
-                        <DataGridTextColumn Header="Débit (L/min)" Binding="{Binding FlowRate}" Width="*" />
-                        <DataGridTextColumn Header="Doses" Binding="{Binding DoseCount}" Width="*" />
-                        <DataGridTextColumn Header="Batterie (%)" Binding="{Binding BatteryLevel}" Width="*" />
-                        <DataGridTextColumn Header="Statut" Binding="{Binding ConnectionStatus}" Width="*" />
-                    </DataGrid.Columns>
-                </DataGrid>
-            </GroupBox>
+                <GroupBox Header="Débit (L/min)" Grid.Row="0" Margin="0,0,8,8">
+                    <Grid>
+                        <lvc:CartesianChart Series="{Binding FlowSeries}" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="Journal des lectures" Grid.Row="1" Margin="0,0,8,0">
+                    <DataGrid ItemsSource="{Binding Readings}" AutoGenerateColumns="False" IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Horodatage" Binding="{Binding Timestamp}" Width="*" />
+                            <DataGridTextColumn Header="Débit (L/min)" Binding="{Binding FlowRate}" Width="*" />
+                            <DataGridTextColumn Header="Doses" Binding="{Binding DoseCount}" Width="*" />
+                            <DataGridTextColumn Header="Batterie (%)" Binding="{Binding BatteryLevel}" Width="*" />
+                            <DataGridTextColumn Header="Statut" Binding="{Binding ConnectionStatus}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </GroupBox>
+            </Grid>
+
+            <StackPanel Grid.Column="1" Orientation="Vertical" Margin="8,0,0,0">
+                <GroupBox Header="Statistiques d’inhalation" Margin="0,0,0,8">
+                    <StackPanel Margin="8">
+                        <TextBlock Text="{Binding AverageDurationSeconds, StringFormat=Durée moyenne: {0:F2} s}"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding AverageVolumeMl, StringFormat=Volume moyen: {0:F1} mL}"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding TotalVolumeMl, StringFormat=Volume total: {0:F1} mL}"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="{Binding AverageIntervalSeconds, StringFormat=Intervalle moyen: {0:F1} s}"
+                                   Margin="0,0,0,4"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Événements / alarmes">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Events}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Margin="4,2">
+                                        <Run Text="{Binding Timestamp, StringFormat=[HH:mm:ss]}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{Binding Type}"/>
+                                        <Run Text=" - "/>
+                                        <Run Text="{Binding Message}"/>
+                                    </TextBlock>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </GroupBox>
+            </StackPanel>
         </Grid>
 
-        <!-- FOOTER -->
         <TextBlock Grid.Row="3" Text="{Binding Footer}"
                    HorizontalAlignment="Right" Foreground="Gray" />
     </Grid>

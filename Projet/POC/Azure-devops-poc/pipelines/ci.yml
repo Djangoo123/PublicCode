@@ -1,0 +1,94 @@
+﻿trigger:
+  branches:
+    include:
+      - main
+      - develop
+      - feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  tag: '$(Build.SourceBranchName)-$(Build.BuildId)'
+
+steps:
+  - checkout: self
+    persistCredentials: true
+
+  # -----------------------------------
+  # Restore
+  # -----------------------------------
+  - task: DotNetCoreCLI@2
+    displayName: "Restore"
+    inputs:
+      command: 'restore'
+      projects: 'src/Api/Api.csproj'
+
+  # -----------------------------------
+  # Build
+  # -----------------------------------
+  - task: DotNetCoreCLI@2
+    displayName: "Build"
+    inputs:
+      command: 'build'
+      projects: 'src/Api/Api.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+
+  # -----------------------------------
+  # Tests
+  # -----------------------------------
+  - task: DotNetCoreCLI@2
+    displayName: "Run Tests"
+    inputs:
+      command: 'test'
+      projects: 'src/Api.Tests/Api.Tests.csproj'
+      arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
+
+  # -----------------------------------
+  # Publish artifact (ZIP for AppService)
+  # -----------------------------------
+  - task: DotNetCoreCLI@2
+    displayName: "Publish Web App"
+    inputs:
+      command: publish
+      publishWebProjects: true
+      arguments: '--output $(Build.ArtifactStagingDirectory) --configuration $(buildConfiguration)'
+      zipAfterPublish: true
+
+  - publish: $(Build.ArtifactStagingDirectory)
+    displayName: "Publish Artifact"
+    artifact: drop
+
+  # -----------------------------------
+  # Build Docker Image
+  # -----------------------------------
+  - task: Docker@2
+    displayName: "Docker Build"
+    inputs:
+      command: build
+      containerRegistry: 'azure-sp'
+      repository: 'poc-api'
+      Dockerfile: 'docker/Dockerfile'
+      tags: |
+        $(tag)
+
+  # -----------------------------------
+  # Push Docker Image
+  # -----------------------------------
+  - task: Docker@2
+    displayName: "Docker Push"
+    inputs:
+      command: push
+      containerRegistry: 'azure-sp'
+      repository: 'poc-api'
+      tags: |
+        $(tag)
+
+  # -----------------------------------
+  # Summary
+  # -----------------------------------
+  - script: |
+      echo "Build + Test completed."
+      echo "Image tag: $(tag)"
+    displayName: "Build Summary"

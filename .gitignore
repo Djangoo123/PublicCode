@@ -49,3 +49,7 @@
 /Projet/PursuitSim/PursuitSim_v2/PursuitSim_v2.Core/obj
 /Projet/PursuitSim/PursuitSim_v2/PursuitSim_v2.Web/bin/Debug/net9.0
 /Projet/PursuitSim/PursuitSim_v2/PursuitSim_v2.Web/obj
+/Projet/POC/Azure-devops-poc/.vs
+/Projet/POC/Azure-devops-poc/src/api/obj
+/Projet/POC/Azure-devops-poc/src/Api.Tests/obj
+/Projet/POC/Azure-devops-poc/tests/obj

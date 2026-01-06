@@ -1,0 +1,41 @@
+﻿@page "/drone-sim"
+@inject PursuitSim_v2.Blazor.Services.SimulationService SimService
+
+<h3>Drone Simulation</h3>
+
+<button @onclick="RunSimulation" disabled="@SimService.IsRunning">
+    @(SimService.IsRunning ? "Running..." : "Run simulation")
+</button>
+
+<hr />
+
+<div style="height:300px; overflow:auto; background:#111; color:#0f0; padding:8px; font-family:monospace;">
+    @foreach (var line in Logs)
+    {
+        <div>@line</div>
+    }
+</div>
+
+@code {
+    private List<string> Logs = new();
+
+    protected override void OnInitialized()
+    {
+        SimService.OnLog += OnLogReceived;
+    }
+
+    private async Task RunSimulation()
+    {
+        Logs.Clear();
+
+        var scenario = PursuitSim_v2.Core.DroneSim.Scenarios.PlainWithHedges();
+
+        await SimService.RunDroneSimAsync(scenario);
+    }
+
+    private void OnLogReceived(string msg)
+    {
+        Logs.Add(msg);
+        InvokeAsync(StateHasChanged);
+    }
+}

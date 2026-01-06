@@ -53,3 +53,11 @@
 /Projet/POC/Azure-devops-poc/src/api/obj
 /Projet/POC/Azure-devops-poc/src/Api.Tests/obj
 /Projet/POC/Azure-devops-poc/tests/obj
+/Projet/POC/Braze/MSK_POC/NotificationService/obj
+/Projet/POC/Braze/MSK_POC/SegmentBackend/obj/Debug/net8.0
+/Projet/POC/Braze/SegmentPOC/src/SegmentBackend/obj
+/Projet/POC/Braze/SegmentPOC/tests/SegmentBackend.Tests/obj/Debug/net8.0
+/Projet/POC/Grafana/obj/Debug/net8.0
+/Projet/POC/Grafana/obj/Release/net8.0
+/Projet/POC/Braze/SegmentPOC/tests/SegmentBackend.Tests/obj/Release/net8.0
+/Projet/POC/Braze/MSK_POC/SegmentBackend/obj/Release/net8.0

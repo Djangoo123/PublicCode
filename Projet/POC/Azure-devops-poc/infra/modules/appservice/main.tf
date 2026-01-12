@@ -31,8 +31,9 @@ resource "azurerm_linux_web_app" "app" {
   }
 
   app_settings = {
-    "WEBSITES_ENABLE_APP_SERVICE_STORAGE" = false
-    "WEBSITES_PORT"                       = 8080
+    "ConnectionStrings__DefaultConnection" = module.postgresql.connection_string
+    "WEBSITES_ENABLE_APP_SERVICE_STORAGE"  = false
+    "WEBSITES_PORT"                        = 8080
   }
 }
 

@@ -12,7 +12,7 @@ provider "azurerm" {
 }
 
 # ----------------------------------------------------
-# NETWORK (Isolated PROD Network)
+# NETWORK 
 # ----------------------------------------------------
 module "network" {
   source = "../modules/network"

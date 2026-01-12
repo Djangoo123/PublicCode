@@ -41,7 +41,7 @@ resource "azurerm_container_app_environment" "env" {
 }
 
 # ---------------------------------------------------
-# CONTAINER APP (the actual microservice)
+# CONTAINER APP 
 # ---------------------------------------------------
 resource "azurerm_container_app" "app" {
   name                         = var.name

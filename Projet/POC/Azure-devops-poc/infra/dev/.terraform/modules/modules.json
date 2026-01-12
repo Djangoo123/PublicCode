@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"appservice","Source":"../modules/appservice","Dir":"../modules/appservice"},{"Key":"containerapp","Source":"../modules/containerapp","Dir":"../modules/containerapp"},{"Key":"network","Source":"../modules/network","Dir":"../modules/network"},{"Key":"postgresql","Source":"../modules/postgresql","Dir":"../modules/postgresql"}]}

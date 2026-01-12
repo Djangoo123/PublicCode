@@ -12,8 +12,7 @@ provider "azurerm" {
 }
 
 # ----------------------------------------------------
-# MODULE STATE (OPTIONNEL)
-# Souvent déployé une seule fois globalement, pas par env.
+# MODULE STATE
 # ----------------------------------------------------
 # module "state" {
 #   source = "../modules/state"
@@ -51,7 +50,7 @@ module "appservice" {
 }
 
 # ----------------------------------------------------
-# MODULE CONTAINER APPS (Optional)
+# MODULE CONTAINER APPS 
 # ----------------------------------------------------
 module "containerapp" {
   source = "../modules/containerapp"
@@ -68,3 +67,20 @@ module "containerapp" {
   acr_username     = var.acr_username
   acr_password     = var.acr_password
 }
+
+# ----------------------------------------------------
+# MODULE POSTGRESQL
+# ----------------------------------------------------
+
+module "postgresql" {
+  source = "../modules/postgresql"
+
+  name                = "poc-pg-dev"
+  resource_group_name = var.resource_group_name
+  location            = var.location
+
+  admin_username = var.pg_admin
+  admin_password = var.pg_password
+  database_name  = "pocdbdev"
+}
+

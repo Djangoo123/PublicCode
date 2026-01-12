@@ -41,3 +41,12 @@ variable "docker_image_tag" {
   description = "Tag used for dev deployment"
   default     = "dev"
 }
+
+variable "pg_admin" {
+  type      = string
+  sensitive = true
+}
+variable "pg_password" {
+  type      = string
+  sensitive = true
+}

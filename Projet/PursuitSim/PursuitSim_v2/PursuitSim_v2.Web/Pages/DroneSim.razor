@@ -1,5 +1,6 @@
 ﻿@page "/drone-sim"
 @inject PursuitSim_v2.Blazor.Services.SimulationService SimService
+@inject IJSRuntime JS
 
 <h3>Drone Simulation</h3>
 
@@ -9,15 +10,31 @@
 
 <hr />
 
-<div style="height:300px; overflow:auto; background:#111; color:#0f0; padding:8px; font-family:monospace;">
-    @foreach (var line in Logs)
+<div @ref="logContainer"
+     style="height:300px;
+            overflow:auto;
+            background:#0e0e0e;
+            color:#d0d0d0;
+            padding:8px;
+            font-family:Consolas, monospace;
+            font-size:13px;
+            border:1px solid #333;">
+
+    @foreach (var log in Logs.ToList())
     {
-        <div>@line</div>
+        <div>
+            <span style="color:#888">[@log.Time:HH:mm:ss]</span>
+            <span style="color:#6cf">[@log.Level]</span>
+            <span> @log.Message</span>
+        </div>
     }
 </div>
 
+
 @code {
-    private List<string> Logs = new();
+    private List<LogEntry> Logs = new();
+
+    private record LogEntry(DateTime Time, string Level, string Message);
 
     protected override void OnInitialized()
     {
@@ -35,7 +52,22 @@
 
     private void OnLogReceived(string msg)
     {
-        Logs.Add(msg);
+        Logs.Add(new LogEntry(DateTime.Now, "INFO", msg));
+
+        if (Logs.Count > 500)
+            Logs.RemoveAt(0);
+
         InvokeAsync(StateHasChanged);
     }
+
 }
+
+@code {
+    private ElementReference logContainer;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JS.InvokeVoidAsync("scrollToBottom", logContainer);
+    }
+}
+

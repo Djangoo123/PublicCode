@@ -1,6 +1,10 @@
 ﻿@page "/drone-sim"
+@using PursuitSim_v2.Blazor.Services
+@using PursuitSim_v2.Core.Common
+@using System.Collections.Concurrent
 @inject PursuitSim_v2.Blazor.Services.SimulationService SimService
 @inject IJSRuntime JS
+@inject SimulationService SimService
 
 <h3>Drone Simulation</h3>
 
@@ -20,7 +24,7 @@
             font-size:13px;
             border:1px solid #333;">
 
-    @foreach (var log in Logs.ToList())
+    @foreach (var log in LogSnapshot)
     {
         <div>
             <span style="color:#888">[@log.Time:HH:mm:ss]</span>
@@ -28,46 +32,87 @@
             <span> @log.Message</span>
         </div>
     }
+
 </div>
 
+<hr />
+
+<h4>Map</h4>
+
+<svg width="600" height="600"
+     style="border:1px solid #444; background:#fafafa">
+
+    @if (Current != null)
+    {
+        @foreach (var r in Current.Runners)
+        {
+            <circle cx="@MapX(r.X)"
+                    cy="@MapY(r.Y)"
+                    r="4"
+                    fill="@(r.KO ? "gray" : "blue")" />
+        }
+
+        <circle cx="@MapX(Current.Drone.X)"
+                cy="@MapY(Current.Drone.Y)"
+                r="6"
+                fill="red" />
+    }
+
+</svg>
 
 @code {
-    private List<LogEntry> Logs = new();
 
+    private SimulationSnapshot? Current;
+    private readonly ConcurrentQueue<LogEntry> _logQueue = new();
     private record LogEntry(DateTime Time, string Level, string Message);
+    private ElementReference logContainer;
+    private readonly object _logLock = new();
+    private IReadOnlyList<LogEntry> LogSnapshot =>
+    _logQueue.ToArray();
 
     protected override void OnInitialized()
     {
         SimService.OnLog += OnLogReceived;
+        SimService.OnTick += OnTickReceived;
     }
+
 
     private async Task RunSimulation()
     {
-        Logs.Clear();
+        _logQueue.Clear();
 
         var scenario = PursuitSim_v2.Core.DroneSim.Scenarios.PlainWithHedges();
-
         await SimService.RunDroneSimAsync(scenario);
     }
 
     private void OnLogReceived(string msg)
     {
-        Logs.Add(new LogEntry(DateTime.Now, "INFO", msg));
+        _logQueue.Enqueue(new LogEntry(DateTime.Now, "INFO", msg));
 
-        if (Logs.Count > 500)
-            Logs.RemoveAt(0);
+        while (_logQueue.Count > 500)
+            _logQueue.TryDequeue(out _);
 
         InvokeAsync(StateHasChanged);
     }
 
-}
 
-@code {
-    private ElementReference logContainer;
+
+    private void OnTickReceived(SimulationSnapshot snap)
+    {
+        Current = snap;
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    const double WorldSize = 1000.0;
+    const double ViewSize = 600.0;
+
+    double MapX(double x) => x / WorldSize * ViewSize;
+    double MapY(double y) => ViewSize - (y / WorldSize * ViewSize);
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeVoidAsync("scrollToBottom", logContainer);
     }
 }
-

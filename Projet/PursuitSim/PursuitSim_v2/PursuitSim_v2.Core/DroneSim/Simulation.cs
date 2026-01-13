@@ -1,6 +1,4 @@
-﻿using System;
-using PursuitSim_v2.Core;
-using PursuitSim_v2.Core.Common;
+﻿using PursuitSim_v2.Core.Common;
 using PursuitSim_v2.Core.DroneSim.Models;
 using PursuitSim_v2.Core.Logging;
 
@@ -101,7 +99,22 @@ public sealed class Simulation
 
         TeamAI();
         DroneAI();
+
+        OnTick?.Invoke(
+            new SimulationSnapshot(
+                Time: t,
+                Drone: new Position(Drone.Pos.X, Drone.Pos.Y),
+                Target: Drone.Target != null
+                    ? new Position(Drone.Target.Pos.X, Drone.Target.Pos.Y)
+                    : null,
+                Distance: Drone.Target != null
+                    ? Vec2.Distance(Drone.Pos, Drone.Target.Pos)
+                    : -1,
+                Runners: [.. Team.Runners.Select(r => new RunnerSnapshot(r.Pos.X, r.Pos.Y, r.KO))]
+            )
+        );
     }
+
 
     void TeamAI()
     {

@@ -5,7 +5,8 @@
         Position Drone,
         Position? Target,
         double Distance,
-        IReadOnlyList<RunnerSnapshot> Runners
+        IReadOnlyList<RunnerSnapshot> Runners,
+        DroneState DroneState
     );
 
     public record RunnerSnapshot(

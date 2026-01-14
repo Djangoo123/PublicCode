@@ -2,7 +2,8 @@
 @using PursuitSim_v2.Blazor.Services
 @using PursuitSim_v2.Core.Common
 @using System.Collections.Concurrent
-@inject PursuitSim_v2.Blazor.Services.SimulationService SimService
+@using PursuitSim_v2.Core.DroneSim
+@using PursuitSim_v2.Core.DroneSim.Models
 @inject IJSRuntime JS
 @inject SimulationService SimService
 
@@ -38,10 +39,84 @@
 <hr />
 
 <h4>Map</h4>
+@if (CurrentScenario != null)
+{
+    <div x="10" y="20" fill="black">
+        Obstacles: @CurrentScenario.Obstacles.Count
+    </div>
+}
 
 <svg width="600" height="600"
      style="border:1px solid #444; background:#fafafa">
 
+
+    @* ===== Obstacles ===== *@
+    @if (CurrentScenario != null)
+    {
+        @foreach (var o in CurrentScenario.Obstacles)
+        {
+            <rect x="@MapX(o.X)"
+                  y="@MapY(o.Y + o.H)"
+                  width="@MapW(o.W)"
+                  height="@MapH(o.H)"
+                  fill="#333"
+                  opacity="0.85" />
+        }
+
+    }
+
+    @* ===== Mines ===== *@
+    @if (CurrentScenario != null)
+    {
+        @foreach (var m in CurrentScenario.Mines)
+        {
+            <circle cx="@MapX(m.Pos.X)"
+                    cy="@MapY(m.Pos.Y)"
+                    r="5"
+                    fill="@(m.Triggered ? "#777" : "#e74c3c")"
+                    stroke="black"
+                    stroke-width="1" />
+        }
+    }
+
+
+    @* ===== Paths ===== *@
+    @if (CurrentScenario != null)
+    {
+        <polyline points="@PathPoints(CurrentScenario.MainPath)"
+                  fill="none"
+                  stroke="#2ecc71"
+                  stroke-width="2"
+                  stroke-dasharray="4,4" />
+
+        <polyline points="@PathPoints(CurrentScenario.AltPathA)"
+                  fill="none"
+                  stroke="#f1c40f"
+                  stroke-width="2"
+                  stroke-dasharray="2,4" />
+
+        <polyline points="@PathPoints(CurrentScenario.AltPathB)"
+                  fill="none"
+                  stroke="#e67e22"
+                  stroke-width="2"
+                  stroke-dasharray="2,4" />
+
+    }
+
+    @* ===== Drone detection radius ===== *@
+    @if (Current != null && CurrentScenario != null)
+    {
+        <circle cx="@MapX(Current.Drone.X)"
+                cy="@MapY(Current.Drone.Y)"
+                r="@(CurrentScenario.Drone.DetectionRange / WorldSize * ViewSize)"
+                fill="none"
+                stroke="#3498db"
+                stroke-width="1"
+                stroke-dasharray="4,4"
+                opacity="0.6" />
+    }
+
+    @* ===== Runners ===== *@
     @if (Current != null)
     {
         @foreach (var r in Current.Runners)
@@ -58,6 +133,35 @@
                 fill="red" />
     }
 
+
+    @if (Current != null && Current.Target is Position target)
+    {
+        <line x1="@MapX(Current.Drone.X)"
+              y1="@MapY(Current.Drone.Y)"
+              x2="@MapX(target.X)"
+              y2="@MapY(target.Y)"
+              stroke="#e67e22"
+              stroke-width="2" />
+
+        <circle cx="@MapX(target.X)"
+                cy="@MapY(target.Y)"
+                r="6"
+                fill="none"
+                stroke="#e67e22"
+                stroke-width="2" />
+    }
+
+
+    @if (Current != null && Current.DroneState == DroneState.Attack)
+    {
+        <circle cx="@MapX(Current.Drone.X)"
+                cy="@MapY(Current.Drone.Y)"
+                r="@(CurrentScenario.Drone.AttackRadius / WorldSize * ViewSize)"
+                fill="rgba(231, 76, 60, 0.2)"
+                stroke="#e74c3c"
+                stroke-width="2" />
+    }
+
 </svg>
 
 @code {
@@ -69,11 +173,22 @@
     private readonly object _logLock = new();
     private IReadOnlyList<LogEntry> LogSnapshot =>
     _logQueue.ToArray();
+    private Scenario? CurrentScenario;
+    double MapW(double w) => w / WorldSize * ViewSize;
+    double MapH(double h) => Math.Max(2, h / WorldSize * ViewSize); 
+
 
     protected override void OnInitialized()
     {
         SimService.OnLog += OnLogReceived;
         SimService.OnTick += OnTickReceived;
+    }
+
+    string PathPoints(PolyPath path)
+    {
+        return string.Join(" ",
+            path.Points.Select(p =>
+                $"{MapX(p.X)},{MapY(p.Y)}"));
     }
 
 
@@ -82,6 +197,7 @@
         _logQueue.Clear();
 
         var scenario = PursuitSim_v2.Core.DroneSim.Scenarios.PlainWithHedges();
+        CurrentScenario = scenario;
         await SimService.RunDroneSimAsync(scenario);
     }
 
@@ -113,6 +229,8 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("scrollToBottom", logContainer);
+        if (firstRender)
+            await JS.InvokeVoidAsync("scrollToBottom", logContainer);
     }
+
 }

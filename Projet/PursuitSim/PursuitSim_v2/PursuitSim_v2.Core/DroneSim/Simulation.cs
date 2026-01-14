@@ -104,6 +104,7 @@ public sealed class Simulation
             new SimulationSnapshot(
                 Time: t,
                 Drone: new Position(Drone.Pos.X, Drone.Pos.Y),
+                DroneState: Drone.State, 
                 Target: Drone.Target != null
                     ? new Position(Drone.Target.Pos.X, Drone.Target.Pos.Y)
                     : null,

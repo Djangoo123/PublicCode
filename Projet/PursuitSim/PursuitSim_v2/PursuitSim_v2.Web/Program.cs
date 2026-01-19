@@ -1,6 +1,5 @@
-using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using PursuitSim_v2.Blazor.Services;
+using PursuitSim_v2.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<SimulationService>();
-
+builder.Services.AddSingleton<BatchSimulationService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

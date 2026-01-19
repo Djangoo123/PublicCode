@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <ItemGroup>
+    <ProjectReference Include="..\PursuitSim_v2.Console\PursuitSim_v2.ConsoleApp.csproj" />
     <ProjectReference Include="..\PursuitSim_v2.Core\PursuitSim_v2.Core.csproj" />
   </ItemGroup>
 

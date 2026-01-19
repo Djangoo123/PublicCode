@@ -1,0 +1,77 @@
+﻿@page "/drone-sim/batch"
+@using PursuitSim_v2.ConsoleApp.Engine
+@using PursuitSim_v2.Core.DroneSim
+@using PursuitSim_v2.Web.Services
+@inject BatchSimulationService BatchService
+
+<h3>Drone Simulation – Batch</h3>
+
+<label>Scenario</label>
+<select @bind ="SelectedScenario">
+    <option value="Plain">Plain + Hedges</option>
+    <option value="Urban">Urban Grid</option>
+    <option value="Mixed">Mixed Clearing</option>
+</select>
+
+<br />
+
+<label>Number of runs</label>
+<input type="number" @bind ="Runs" min="1" max="1000" />
+
+<br />
+<br />
+
+<button @onclick ="RunBatch" disabled="@IsRunning">
+    @(IsRunning ? "Running..." : "Run batch")
+</button>
+
+<hr />
+
+@if (Results != null)
+{
+    <h4>Results</h4>
+
+    <p>Total runs: @Results.Count</p>
+    <p>Win rate: @WinRate %</p>
+    <p>Avg survivors: @AvgSurvivors</p>
+}
+
+@code {
+    int Runs = 20;
+    bool IsRunning = false;
+    string SelectedScenario = "Plain";
+
+    List<RunResult>
+    ? Results;
+
+    double WinRate => Results == null
+    ? 0
+    : Math.Round(Results.Count(r => r.Win) * 100.0 / Results.Count, 1);
+
+    double AvgSurvivors => Results == null
+    ? 0
+    : Math.Round(Results.Average(r => r.Survivors), 2);
+
+    async Task RunBatch()
+    {
+    IsRunning = true;
+    Results = null;
+
+    Func<Scenario>
+        factory = SelectedScenario switch
+        {
+        "Plain" => () => Scenarios.PlainWithHedges(),
+        "Urban" => () => Scenarios.UrbanGrid(),
+        _ => () => Scenarios.MixedClearingFinal()
+        };
+
+        Results = await BatchService.RunBatchAsync(
+        factory,
+        Runs,
+        "ui-batch",
+        "out"
+        );
+
+        IsRunning = false;
+        }
+        }

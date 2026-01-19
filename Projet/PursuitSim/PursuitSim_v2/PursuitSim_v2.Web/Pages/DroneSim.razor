@@ -46,6 +46,14 @@
     </div>
 }
 
+@if (Current != null)
+{
+    <div x="10" y="40" fill="black" font-size="14">
+        Drone: @Current.DroneState
+    </div>
+}
+
+
 <svg width="600" height="600"
      style="border:1px solid #444; background:#fafafa">
 
@@ -114,6 +122,14 @@
                 stroke-width="1"
                 stroke-dasharray="4,4"
                 opacity="0.6" />
+
+        <circle cx="@MapX(Current.Drone.X)"
+                cy="@MapY(Current.Drone.Y)"
+                r="7"
+                fill="@DroneColor(Current.DroneState)"
+                stroke="black"
+                stroke-width="1" />
+
     }
 
     @* ===== Runners ===== *@
@@ -177,6 +193,16 @@
     double MapW(double w) => w / WorldSize * ViewSize;
     double MapH(double h) => Math.Max(2, h / WorldSize * ViewSize); 
 
+    string DroneColor(DroneState state) => state switch
+    {
+        DroneState.Patrol => "#3498db", 
+        DroneState.Track => "#f39c12", 
+        DroneState.Attack => "#e74c3c", 
+        DroneState.Bombing => "#9b59b6", 
+        DroneState.Cooldown => "#95a5a6", 
+        DroneState.Destroyed => "#2c3e50", 
+        _ => "black"
+    };
 
     protected override void OnInitialized()
     {

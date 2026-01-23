@@ -1,1 +1,0 @@
-template RangeProof() { signal input in; }
